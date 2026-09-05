@@ -15,224 +15,273 @@
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     
     <style>
+        :root {
+            /* Standarisasi Warna Neumorphism */
+            --bg-color: #e0e5ec;
+            --shadow-light: rgba(255, 255, 255, 0.7);
+            --shadow-dark: rgba(163, 177, 198, 0.6);
+            --shadow-dark-strong: rgba(163, 177, 198, 0.8);
+        }
+
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #e0e5ec;
+            background-color: var(--bg-color);
             color: #4a5568;
+            background-image: radial-gradient(circle at 50% 0%, #eaf0f8 0%, transparent 70%);
+        }
+
+        /* Teks Gradasi Modern */
+        .text-gradient {
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-image: linear-gradient(135deg, #10b981 0%, #0d9488 100%);
+        }
+        .text-gradient-blue {
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-image: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
         }
 
         /* Neumorphism Styles */
         .neu-flat {
-            background: #e0e5ec;
-            box-shadow: 9px 9px 16px rgb(163,177,198,0.6), 
-                       -9px -9px 16px rgba(255,255,255, 0.5);
+            background: var(--bg-color);
+            box-shadow: 10px 10px 20px var(--shadow-dark), 
+                       -10px -10px 20px var(--shadow-light);
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
         .neu-pressed {
-            background: #e0e5ec;
-            box-shadow: inset 6px 6px 10px 0 rgba(163, 177, 198, 0.7),
-                        inset -6px -6px 10px 0 rgba(255, 255, 255, 0.8);
+            background: var(--bg-color);
+            box-shadow: inset 6px 6px 12px var(--shadow-dark),
+                        inset -6px -6px 12px var(--shadow-light);
+        }
+        
+        .neu-deep-pressed {
+            background: var(--bg-color);
+            box-shadow: inset 12px 12px 24px var(--shadow-dark-strong), 
+                        inset -12px -12px 24px #ffffff;
         }
 
         .neu-btn {
-            background: #e0e5ec;
-            box-shadow: 5px 5px 10px rgba(163, 177, 198, 0.6), 
-                       -5px -5px 10px rgba(255, 255, 255, 0.5);
-            transition: all 0.2s ease-in-out;
+            background: var(--bg-color);
+            box-shadow: 6px 6px 12px var(--shadow-dark), 
+                       -6px -6px 12px var(--shadow-light);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
         }
 
         .neu-btn:hover {
-            color: #10b981; /* emerald-500 */
+            color: #10b981;
+            transform: translateY(-2px);
+            box-shadow: 8px 8px 16px var(--shadow-dark), 
+                       -8px -8px 16px var(--shadow-light);
+        }
+        
+        .neu-btn.blue-hover:hover {
+            color: #3b82f6;
         }
 
         .neu-btn:active, .neu-btn-active {
-            box-shadow: inset 4px 4px 8px rgba(163, 177, 198, 0.6), 
-                       inset -4px -4px 8px rgba(255, 255, 255, 0.5);
-            transform: scale(0.98);
+            box-shadow: inset 4px 4px 8px var(--shadow-dark), 
+                       inset -4px -4px 8px var(--shadow-light);
+            transform: scale(0.97) translateY(0);
+            border-color: transparent;
         }
 
         .drag-active {
-            box-shadow: inset 10px 10px 20px rgba(163, 177, 198, 0.8), 
-                       inset -10px -10px 20px rgba(255, 255, 255, 0.9);
-            border-color: #10b981;
+            box-shadow: inset 10px 10px 20px var(--shadow-dark-strong), 
+                       inset -10px -10px 20px #ffffff;
+            border: 2px dashed #10b981;
         }
 
         /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; border: 2px solid var(--bg-color); }
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
         
+        /* Sticky Column for Table */
         .sticky-col {
             position: sticky;
             left: 0;
-            background-color: #e0e5ec;
+            background-color: var(--bg-color);
             z-index: 10;
+        }
+        
+        /* Focus Outline (Accessibility) */
+        input:focus {
+            box-shadow: inset 6px 6px 12px var(--shadow-dark),
+                        inset -6px -6px 12px var(--shadow-light),
+                        0 0 0 2px rgba(16, 185, 129, 0.2);
         }
     </style>
 </head>
 <body class="min-h-screen relative overflow-x-hidden">
 
-    <!-- Login Section -->
     <div id="login-section" class="fixed inset-0 z-50 flex items-center justify-center transition-all duration-700 ease-in-out">
-        <div class="w-full max-w-md p-10 rounded-[2rem] neu-flat flex flex-col items-center">
-            <div class="w-20 h-20 rounded-full neu-flat flex items-center justify-center mb-6 text-emerald-500">
-                <i class="ph ph-shield-check text-4xl"></i>
-            </div>
-            <h2 class="text-3xl font-extrabold text-slate-700 mb-2 tracking-tight">Login KENDALI</h2>
-            <p class="text-slate-500 mb-8 text-center text-sm">Masukkan username puskesmas Anda untuk mengakses data kohort.</p>
+        <div class="w-full max-w-md p-10 rounded-[2.5rem] neu-flat flex flex-col items-center relative overflow-hidden">
+            <!-- Decorative Accent -->
+            <div class="absolute top-0 right-0 w-32 h-32 bg-emerald-400 opacity-10 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none"></div>
             
-            <div class="w-full flex flex-col gap-5">
-                <div class="w-full relative">
-                    <i class="ph ph-user absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-xl"></i>
-                    <input type="text" id="username-input" placeholder="Username..." class="w-full py-4 pl-12 pr-4 rounded-xl neu-pressed outline-none text-slate-700 font-medium placeholder-slate-400 bg-transparent">
+            <div class="w-24 h-24 rounded-full neu-flat flex items-center justify-center mb-8 text-emerald-500 relative">
+                <i class="ph-fill ph-shield-check text-5xl drop-shadow-md"></i>
+            </div>
+            
+            <h2 class="text-3xl font-black text-slate-700 mb-3 tracking-tight text-gradient">Login KENDALI</h2>
+            <p class="text-slate-500 mb-8 text-center text-sm font-medium leading-relaxed">Masukkan username puskesmas Anda<br>untuk mengakses sistem data kohort.</p>
+            
+            <div class="w-full flex flex-col gap-6">
+                <div class="w-full relative group">
+                    <i class="ph ph-user absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 text-xl group-focus-within:text-emerald-500 transition-colors"></i>
+                    <input type="text" id="username-input" placeholder="Ketik username Anda..." class="w-full py-4 pl-14 pr-5 rounded-2xl neu-pressed outline-none text-slate-700 font-bold placeholder-slate-400 bg-transparent transition-all">
                 </div>
                 
-                <button id="login-btn" onclick="handleLogin()" class="w-full py-4 rounded-xl neu-btn font-bold text-slate-600 flex items-center justify-center gap-2">
+                <button id="login-btn" onclick="handleLogin()" class="w-full py-4 rounded-2xl neu-btn font-extrabold text-slate-600 flex items-center justify-center gap-3 tracking-wide">
                     <span id="login-text">Masuk Sekarang</span>
-                    <i id="login-icon" class="ph ph-sign-in text-lg"></i>
+                    <i id="login-icon" class="ph-bold ph-sign-in text-xl"></i>
                 </button>
             </div>
-            <p id="login-error" class="text-red-500 text-sm font-semibold mt-4 hidden"></p>
+            <p id="login-error" class="text-rose-500 text-sm font-bold mt-5 hidden bg-rose-50 px-4 py-2 rounded-lg w-full text-center border border-rose-100"></p>
         </div>
     </div>
 
-    <!-- Main App Section (Hidden by default) -->
-    <div id="app-section" class="opacity-0 translate-y-20 pointer-events-none transition-all duration-700 ease-in-out flex flex-col items-center py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto min-h-screen">
+    <div id="app-section" class="opacity-0 translate-y-20 pointer-events-none transition-all duration-700 ease-in-out flex flex-col items-center py-10 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto min-h-screen">
         
         <!-- Navbar / Header -->
-        <header class="w-full flex items-center justify-between mb-12 neu-flat p-4 px-8 rounded-2xl">
-            <div class="flex items-center gap-4">
-                <div class="w-12 h-12 rounded-full neu-pressed flex items-center justify-center">
-                    <i class="ph-fill ph-heartbeat text-2xl text-emerald-500"></i>
+        <header class="w-full flex flex-col sm:flex-row items-center justify-between mb-12 neu-flat p-5 px-8 rounded-[2rem] gap-4 sm:gap-0 relative overflow-hidden">
+            <div class="flex items-center gap-5 z-10">
+                <div class="w-14 h-14 rounded-full neu-pressed flex items-center justify-center bg-emerald-50/30">
+                    <i class="ph-fill ph-heartbeat text-3xl text-emerald-500 animate-pulse drop-shadow-sm"></i>
                 </div>
                 <div>
-                    <h1 class="text-2xl font-black text-slate-700 tracking-tight">KENDALI PTM</h1>
-                    <p class="text-xs font-semibold text-slate-500 uppercase tracking-widest">Kohort Terkendali pasien Diabetes & Hipertensi</p>
+                    <h1 class="text-3xl font-black tracking-tight text-gradient">KENDALI</h1>
+                    <p class="text-xs font-bold text-slate-500 uppercase tracking-[0.15em] mt-1">Kohort Terkendali pasien Diabetes & Hipertensi</p>
                 </div>
             </div>
-            <div class="flex items-center gap-4">
-                <div class="hidden md:flex items-center gap-2 px-4 py-2 rounded-lg neu-pressed">
-                    <i class="ph ph-user-circle text-emerald-600 text-lg"></i>
+            <div class="flex items-center gap-5 z-10">
+                <div class="hidden md:flex items-center gap-3 px-5 py-2.5 rounded-xl neu-pressed bg-white/10">
+                    <i class="ph-fill ph-user-circle text-emerald-500 text-xl"></i>
                     <span id="user-display-name" class="text-sm font-bold text-slate-600">Guest</span>
                 </div>
-                <button onclick="handleLogout()" class="w-10 h-10 rounded-full neu-btn flex items-center justify-center text-slate-600 hover:text-red-500" title="Logout">
-                    <i class="ph ph-sign-out text-xl"></i>
+                <button onclick="handleLogout()" class="w-12 h-12 rounded-full neu-btn flex items-center justify-center text-slate-500 hover:text-rose-500 transition-colors" title="Logout">
+                    <i class="ph-bold ph-power text-xl"></i>
                 </button>
             </div>
         </header>
 
         <main class="w-full flex flex-col gap-10">
-            <!-- Upload Zone -->
-            <div class="w-full max-w-2xl mx-auto">
-                <div id="drop-zone" class="w-full relative group cursor-pointer p-1 rounded-3xl neu-pressed transition-all duration-300">
+            <div class="w-full max-w-3xl mx-auto">
+                <div id="drop-zone" class="w-full relative group cursor-pointer p-14 rounded-[3rem] neu-deep-pressed transition-all duration-300 flex flex-col items-center justify-center text-center">
                     <input type="file" id="file-upload" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20" accept=".xlsx, .xls, .csv">
                     
-                    <div class="bg-[#e0e5ec] rounded-[1.4rem] p-12 flex flex-col items-center justify-center text-center transition-all duration-300 relative z-10 pointer-events-none">
-                        <div id="upload-icon-container" class="w-20 h-20 rounded-full neu-flat flex items-center justify-center mb-6 text-slate-400 transition-all duration-300">
-                            <i id="upload-icon" class="ph ph-cloud-arrow-up text-4xl transition-transform duration-300"></i>
+                    <div class="relative z-10 pointer-events-none flex flex-col items-center">
+                        <div id="upload-icon-container" class="w-24 h-24 rounded-full neu-flat flex items-center justify-center mb-8 text-slate-400 transition-all duration-300 relative group-hover:-translate-y-2">
+                            <i id="upload-icon" class="ph-duotone ph-cloud-arrow-up text-5xl transition-transform duration-300"></i>
                         </div>
                         
-                        <h3 id="upload-text" class="text-xl font-bold text-slate-700 mb-2">Pilih File Excel</h3>
+                        <h3 id="upload-text" class="text-2xl font-black text-slate-700 mb-3 tracking-tight">Pilih File Excel Anda</h3>
+                        <p class="text-slate-500 font-medium text-sm">Atau seret dan lepas file ke area ini</p>
                         
                         <!-- Progress Bar -->
-                        <div id="progress-container" class="w-full max-w-xs h-2 neu-pressed rounded-full overflow-hidden mt-4 hidden">
-                            <div id="progress-bar" class="h-full bg-emerald-500 w-0 transition-all duration-300 rounded-full"></div>
+                        <div id="progress-container" class="w-full min-w-[250px] max-w-xs h-3 neu-pressed rounded-full overflow-hidden mt-8 hidden relative">
+                            <div id="progress-bar" class="h-full bg-gradient-to-r from-emerald-400 to-emerald-500 w-0 transition-all duration-300 rounded-full shadow-[0_0_10px_rgba(16,185,129,0.5)]"></div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Results Section -->
             <div id="results-section" class="w-full hidden flex-col opacity-0 transition-opacity duration-700">
                 
                 <!-- Table 1: DM Terkendali -->
-                <div class="w-full flex flex-col gap-4">
-                    <div class="flex flex-col md:flex-row items-start md:items-center justify-between w-full gap-4 mb-2 border-b-2 border-[#d5dbe4] pb-4">
-                        <div class="flex items-center gap-3">
-                            <span class="w-3 h-8 bg-blue-500 rounded-full shadow-[0_0_8px_rgba(59,130,246,0.5)]"></span>
-                            <h4 class="text-xl font-extrabold text-slate-700 tracking-tight">DM Terkendali</h4>
+                <div class="w-full flex flex-col gap-5">
+                    <div class="flex flex-col md:flex-row items-start md:items-center justify-between w-full gap-4 mb-2 border-b-2 border-slate-300/50 pb-5">
+                        <div class="flex items-center gap-4">
+                            <span class="w-4 h-10 bg-gradient-to-b from-blue-400 to-blue-600 rounded-full shadow-[0_0_12px_rgba(59,130,246,0.4)]"></span>
+                            <h4 class="text-2xl font-black text-slate-700 tracking-tight text-gradient-blue">DM Terkendali</h4>
                         </div>
-                        <div class="flex items-center gap-3 self-end md:self-auto">
-                            <button onclick="copyTableData('dm', this)" class="px-5 py-2 neu-btn rounded-xl text-blue-600 font-bold text-sm flex items-center gap-2">
-                                <i class="ph ph-copy text-lg"></i> <span>Salin Laporan</span>
+                        <div class="flex flex-wrap items-center gap-3 self-end md:self-auto">
+                            <button onclick="copyTableData('dm', this)" class="px-6 py-2.5 neu-btn blue-hover rounded-xl text-slate-600 font-bold text-sm flex items-center gap-2">
+                                <i class="ph-bold ph-copy text-lg"></i> <span>Salin Laporan</span>
                             </button>
-                            <a href="https://docs.google.com/spreadsheets/d/1Iz7AeBYLCADXnXtxayB2rOQKsZutc71jqEE4xL0sCxc/edit?gid=447272003#gid=447272003" target="_blank" class="px-5 py-2 neu-btn rounded-xl text-slate-600 hover:text-blue-600 font-bold text-sm flex items-center gap-2">
-                                <i class="ph ph-link text-lg"></i> <span>Link Laporan</span>
+                            <a href="https://docs.google.com/spreadsheets/d/1Iz7AeBYLCADXnXtxayB2rOQKsZutc71jqEE4xL0sCxc/edit?gid=447272003#gid=447272003" target="_blank" class="px-6 py-2.5 neu-btn blue-hover rounded-xl text-slate-600 font-bold text-sm flex items-center gap-2">
+                                <i class="ph-bold ph-arrow-square-out text-lg"></i> <span>Link Laporan</span>
                             </a>
                         </div>
                     </div>
                     
-                    <div class="w-full overflow-x-auto rounded-2xl neu-flat p-2">
+                    <div class="w-full overflow-x-auto rounded-[1.5rem] neu-flat p-3 border border-white/40">
                         <table class="w-full text-left border-collapse min-w-max">
                             <thead>
-                                <tr id="dm-table-header" class="text-xs uppercase tracking-wider text-slate-500 border-b border-slate-300">
-                                    <!-- Dinamis dirender via JS -->
+                                <tr id="dm-table-header" class="text-xs uppercase tracking-widest font-bold text-slate-500 border-b-2 border-slate-200 bg-slate-100/30">
+                                    <!-- Dinamis -->
                                 </tr>
                             </thead>
-                            <tbody id="dm-table-body" class="text-sm font-medium text-slate-600">
-                                <!-- Dinamis dirender via JS -->
+                            <tbody id="dm-table-body" class="text-sm font-semibold text-slate-600">
+                                <!-- Dinamis -->
                             </tbody>
                         </table>
                     </div>
                     <!-- Pagination DM -->
-                    <div id="dm-pagination" class="flex justify-end gap-3 mt-2 hidden">
-                        <button onclick="changePage('DM', -1)" class="px-4 py-2 rounded-lg neu-btn text-slate-600 font-bold text-sm flex items-center gap-2"><i class="ph ph-caret-left"></i> Prev</button>
-                        <span id="dm-page-info" class="px-4 py-2 rounded-lg neu-pressed text-slate-500 font-bold text-sm flex items-center">Hal 1</span>
-                        <button onclick="changePage('DM', 1)" class="px-4 py-2 rounded-lg neu-btn text-slate-600 font-bold text-sm flex items-center gap-2">Next <i class="ph ph-caret-right"></i></button>
+                    <div id="dm-pagination" class="flex justify-end items-center gap-4 mt-2 hidden">
+                        <button onclick="changePage('DM', -1)" class="w-10 h-10 rounded-full neu-btn text-slate-600 flex items-center justify-center hover:text-blue-500"><i class="ph-bold ph-caret-left text-lg"></i></button>
+                        <span id="dm-page-info" class="px-5 py-2.5 rounded-xl neu-pressed text-slate-600 font-bold text-sm flex items-center">Hal 1</span>
+                        <button onclick="changePage('DM', 1)" class="w-10 h-10 rounded-full neu-btn text-slate-600 flex items-center justify-center hover:text-blue-500"><i class="ph-bold ph-caret-right text-lg"></i></button>
                     </div>
                 </div>
 
-                <!-- Divider pemisah antar tabel -->
-                <div class="w-full flex justify-center py-10 mt-6 mb-8">
-                    <div class="w-3/4 h-1 neu-pressed rounded-full opacity-60"></div>
+                <div class="w-full flex items-center justify-center py-12">
+                    <div class="w-2 h-2 rounded-full bg-slate-300 mx-2"></div>
+                    <div class="w-3/4 h-1.5 neu-pressed rounded-full opacity-70"></div>
+                    <div class="w-2 h-2 rounded-full bg-slate-300 mx-2"></div>
                 </div>
 
                 <!-- Table 2: HT Terkendali -->
-                <div class="w-full flex flex-col gap-4">
-                    <div class="flex flex-col md:flex-row items-start md:items-center justify-between w-full gap-4 mb-2 border-b-2 border-[#d5dbe4] pb-4">
-                        <div class="flex items-center gap-3">
-                            <span class="w-3 h-8 bg-emerald-500 rounded-full shadow-[0_0_8px_rgba(16,185,129,0.5)]"></span>
-                            <h4 class="text-xl font-extrabold text-slate-700 tracking-tight">HT Terkendali</h4>
+                <div class="w-full flex flex-col gap-5">
+                    <div class="flex flex-col md:flex-row items-start md:items-center justify-between w-full gap-4 mb-2 border-b-2 border-slate-300/50 pb-5">
+                        <div class="flex items-center gap-4">
+                            <span class="w-4 h-10 bg-gradient-to-b from-emerald-400 to-emerald-600 rounded-full shadow-[0_0_12px_rgba(16,185,129,0.4)]"></span>
+                            <h4 class="text-2xl font-black text-slate-700 tracking-tight text-gradient">HT Terkendali</h4>
                         </div>
-                        <div class="flex items-center gap-3 self-end md:self-auto">
-                            <button onclick="copyTableData('ht', this)" class="px-5 py-2 neu-btn rounded-xl text-emerald-600 font-bold text-sm flex items-center gap-2">
-                                <i class="ph ph-copy text-lg"></i> <span>Salin Laporan</span>
+                        <div class="flex flex-wrap items-center gap-3 self-end md:self-auto">
+                            <button onclick="copyTableData('ht', this)" class="px-6 py-2.5 neu-btn rounded-xl text-slate-600 font-bold text-sm flex items-center gap-2">
+                                <i class="ph-bold ph-copy text-lg"></i> <span>Salin Laporan</span>
                             </button>
-                            <a href="https://docs.google.com/spreadsheets/d/1XrKHboyMs4rAsqXskIi7aw7InaYqiIYOdCUNdk0H6ew/edit?gid=447272003#gid=447272003" target="_blank" class="px-5 py-2 neu-btn rounded-xl text-slate-600 hover:text-emerald-600 font-bold text-sm flex items-center gap-2">
-                                <i class="ph ph-link text-lg"></i> <span>Link Laporan</span>
+                            <a href="https://docs.google.com/spreadsheets/d/1XrKHboyMs4rAsqXskIi7aw7InaYqiIYOdCUNdk0H6ew/edit?gid=447272003#gid=447272003" target="_blank" class="px-6 py-2.5 neu-btn rounded-xl text-slate-600 font-bold text-sm flex items-center gap-2">
+                                <i class="ph-bold ph-arrow-square-out text-lg"></i> <span>Link Laporan</span>
                             </a>
                         </div>
                     </div>
                     
-                    <div class="w-full overflow-x-auto rounded-2xl neu-flat p-2">
+                    <div class="w-full overflow-x-auto rounded-[1.5rem] neu-flat p-3 border border-white/40">
                         <table class="w-full text-left border-collapse min-w-max">
                             <thead>
-                                <tr id="ht-table-header" class="text-xs uppercase tracking-wider text-slate-500 border-b border-slate-300">
-                                    <!-- Dinamis dirender via JS -->
+                                <tr id="ht-table-header" class="text-xs uppercase tracking-widest font-bold text-slate-500 border-b-2 border-slate-200 bg-slate-100/30">
+                                    <!-- Dinamis -->
                                 </tr>
                             </thead>
-                            <tbody id="ht-table-body" class="text-sm font-medium text-slate-600">
-                                <!-- Dinamis dirender via JS -->
+                            <tbody id="ht-table-body" class="text-sm font-semibold text-slate-600">
+                                <!-- Dinamis -->
                             </tbody>
                         </table>
                     </div>
                     <!-- Pagination HT -->
-                    <div id="ht-pagination" class="flex justify-end gap-3 mt-2 hidden">
-                        <button onclick="changePage('HT', -1)" class="px-4 py-2 rounded-lg neu-btn text-slate-600 font-bold text-sm flex items-center gap-2"><i class="ph ph-caret-left"></i> Prev</button>
-                        <span id="ht-page-info" class="px-4 py-2 rounded-lg neu-pressed text-slate-500 font-bold text-sm flex items-center">Hal 1</span>
-                        <button onclick="changePage('HT', 1)" class="px-4 py-2 rounded-lg neu-btn text-slate-600 font-bold text-sm flex items-center gap-2">Next <i class="ph ph-caret-right"></i></button>
+                    <div id="ht-pagination" class="flex justify-end items-center gap-4 mt-2 hidden">
+                        <button onclick="changePage('HT', -1)" class="w-10 h-10 rounded-full neu-btn text-slate-600 flex items-center justify-center hover:text-emerald-500"><i class="ph-bold ph-caret-left text-lg"></i></button>
+                        <span id="ht-page-info" class="px-5 py-2.5 rounded-xl neu-pressed text-slate-600 font-bold text-sm flex items-center">Hal 1</span>
+                        <button onclick="changePage('HT', 1)" class="w-10 h-10 rounded-full neu-btn text-slate-600 flex items-center justify-center hover:text-emerald-500"><i class="ph-bold ph-caret-right text-lg"></i></button>
                     </div>
                 </div>
 
             </div>
         </main>
         
-        <footer class="mt-16 text-center text-slate-400 text-sm font-medium w-full pb-8">
-            &copy; <span id="year"></span> KENDALI PTM - Kohort Terkendali pasien Diabetes dan Hipertensi.
+        <footer class="mt-20 text-center text-slate-400 text-sm font-bold w-full pb-8 tracking-wide">
+            &copy; <span id="year"></span> KENDALI PTM - Kohort Terkendali.
         </footer>
     </div>
 
@@ -242,7 +291,6 @@
         // ----------------------------------------------------
         // KONFIGURASI KOLOM
         // ----------------------------------------------------
-        // Kategori DM
         const dmColumns = [
             { header: "NIK", index: 2 },
             { header: "Pasien Terdiagnosa", index: 4 },
@@ -260,35 +308,22 @@
             { header: "Desember", index: 85 }
         ];
 
-        // Kategori HT
         const htColumns = [
             { header: "Nama", index: 1 },
             { header: "NIK", index: 2 },
             { header: "Pasien Terdiagnosa", index: 4 },
-            { header: "Jan (Sistole)", index: 11 },
-            { header: "Jan (Diastole)", index: 12 },
-            { header: "Feb (Sistole)", index: 18 },
-            { header: "Feb (Diastole)", index: 19 },
-            { header: "Mar (Sistole)", index: 25 },
-            { header: "Mar (Diastole)", index: 26 },
-            { header: "Apr (Sistole)", index: 32 },
-            { header: "Apr (Diastole)", index: 33 },
-            { header: "Mei (Sistole)", index: 39 },
-            { header: "Mei (Diastole)", index: 40 },
-            { header: "Jun (Sistole)", index: 46 },
-            { header: "Jun (Diastole)", index: 47 },
-            { header: "Jul (Sistole)", index: 53 },
-            { header: "Jul (Diastole)", index: 54 },
-            { header: "Ags (Sistole)", index: 60 },
-            { header: "Ags (Diastole)", index: 61 },
-            { header: "Sep (Sistole)", index: 67 },
-            { header: "Sep (Diastole)", index: 68 },
-            { header: "Okt (Sistole)", index: 74 },
-            { header: "Okt (Diastole)", index: 75 },
-            { header: "Nov (Sistole)", index: 81 },
-            { header: "Nov (Diastole)", index: 82 },
-            { header: "Des (Sistole)", index: 88 },
-            { header: "Des (Diastole)", index: 89 }
+            { header: "Jan (Sistole)", index: 11 }, { header: "Jan (Diastole)", index: 12 },
+            { header: "Feb (Sistole)", index: 18 }, { header: "Feb (Diastole)", index: 19 },
+            { header: "Mar (Sistole)", index: 25 }, { header: "Mar (Diastole)", index: 26 },
+            { header: "Apr (Sistole)", index: 32 }, { header: "Apr (Diastole)", index: 33 },
+            { header: "Mei (Sistole)", index: 39 }, { header: "Mei (Diastole)", index: 40 },
+            { header: "Jun (Sistole)", index: 46 }, { header: "Jun (Diastole)", index: 47 },
+            { header: "Jul (Sistole)", index: 53 }, { header: "Jul (Diastole)", index: 54 },
+            { header: "Ags (Sistole)", index: 60 }, { header: "Ags (Diastole)", index: 61 },
+            { header: "Sep (Sistole)", index: 67 }, { header: "Sep (Diastole)", index: 68 },
+            { header: "Okt (Sistole)", index: 74 }, { header: "Okt (Diastole)", index: 75 },
+            { header: "Nov (Sistole)", index: 81 }, { header: "Nov (Diastole)", index: 82 },
+            { header: "Des (Sistole)", index: 88 }, { header: "Des (Diastole)", index: 89 }
         ];
 
         // ----------------------------------------------------
@@ -299,7 +334,6 @@
         const appSection = document.getElementById('app-section');
         const usernameInput = document.getElementById('username-input');
 
-        // Cek sesi saat dimuat
         window.onload = function() {
             const savedUser = sessionStorage.getItem('username');
             if (savedUser) {
@@ -307,11 +341,10 @@
             }
         };
 
-        // Event listener untuk tekan Enter pada input login
         usernameInput.addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
-                e.preventDefault(); // Mencegah form submit bawaan
-                handleLogin();      // Jalankan fungsi klik tombol masuk
+                e.preventDefault();
+                handleLogin();
             }
         });
 
@@ -325,7 +358,7 @@
             setTimeout(() => {
                 loginSection.classList.add('hidden');
                 appSection.classList.remove('opacity-0', 'translate-y-20', 'pointer-events-none');
-            }, 500);
+            }, 700);
         }
 
         async function handleLogin() {
@@ -343,13 +376,11 @@
 
             errorText.classList.add('hidden');
             
-            // Efek Loading Tombol
             loginText.innerText = "Memeriksa...";
             loginIcon.classList.replace('ph-sign-in', 'ph-spinner');
             loginIcon.classList.add('animate-spin');
             loginBtn.classList.add('neu-btn-active');
 
-            // Bypass khusus testing admin
             if (username.toLowerCase() === 'admin') {
                 setTimeout(() => {
                     sessionStorage.setItem('username', 'admin');
@@ -359,7 +390,6 @@
                 return;
             }
 
-            // Panggil API Google Script
             try {
                 const response = await fetch(`${GOOGLE_SCRIPT_URL}?username=${encodeURIComponent(username)}`);
                 const result = await response.json();
@@ -393,15 +423,12 @@
         function handleLogout() {
             sessionStorage.removeItem('username');
             
-            // Animasi Hide App
             appSection.classList.add('opacity-0', 'translate-y-20', 'pointer-events-none');
             
-            // Reset Data & UI
             setTimeout(() => {
                 resetAppData();
                 loginSection.classList.remove('hidden');
                 
-                // Animasi Show Login (Delay agar rapi)
                 setTimeout(() => {
                     loginSection.classList.remove('scale-95', 'opacity-0', 'pointer-events-none');
                     usernameInput.value = '';
@@ -416,7 +443,7 @@
             };
             currentPage = { DM: 1, HT: 1 };
             document.getElementById('results-section').classList.add('hidden', 'opacity-0');
-            document.getElementById('upload-text').innerText = 'Pilih File Excel';
+            document.getElementById('upload-text').innerText = 'Pilih File Excel Anda';
             
             const pBar = document.getElementById('progress-bar');
             pBar.style.width = '0%';
@@ -425,20 +452,15 @@
 
         function showNotification(msg, type='success') {
             const notif = document.createElement('div');
-            const color = type === 'success' ? 'bg-emerald-500' : 'bg-red-500';
-            notif.className = `fixed bottom-8 right-8 px-6 py-4 rounded-xl shadow-[0_10px_20px_rgba(0,0,0,0.15)] text-white font-bold transition-all duration-500 transform translate-y-10 opacity-0 z-50 flex items-center gap-3 ${color}`;
+            const color = type === 'success' ? 'bg-emerald-500' : 'bg-rose-500';
+            notif.className = `fixed bottom-8 right-8 px-6 py-4 rounded-2xl shadow-xl text-white font-bold transition-all duration-500 transform translate-y-10 opacity-0 z-50 flex items-center gap-3 ${color}`;
             
-            const icon = type === 'success' ? '<i class="ph ph-check-circle text-2xl"></i>' : '<i class="ph ph-warning-circle text-2xl"></i>';
+            const icon = type === 'success' ? '<i class="ph-fill ph-check-circle text-2xl"></i>' : '<i class="ph-fill ph-warning-circle text-2xl"></i>';
             notif.innerHTML = `${icon} <span>${msg}</span>`;
             
             document.body.appendChild(notif);
             
-            // Animate In
-            setTimeout(() => {
-                notif.classList.remove('translate-y-10', 'opacity-0');
-            }, 100);
-
-            // Animate Out
+            setTimeout(() => { notif.classList.remove('translate-y-10', 'opacity-0'); }, 100);
             setTimeout(() => {
                 notif.classList.add('translate-y-10', 'opacity-0');
                 setTimeout(() => notif.remove(), 500);
@@ -449,7 +471,6 @@
         const fileInput = document.getElementById('file-upload');
         const resultsSection = document.getElementById('results-section');
         
-        // Data Global dan Pagination
         let globalProcessedData = {
             DM: { rows: [], columns: dmColumns },
             HT: { rows: [], columns: htColumns }
@@ -457,32 +478,22 @@
         const rowsPerPage = 5;
         let currentPage = { DM: 1, HT: 1 };
 
-        // Events Drag & Drop
         ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-            dropZone.addEventListener(eventName, preventDefaults, false);
+            dropZone.addEventListener(eventName, e => {
+                e.preventDefault(); e.stopPropagation();
+            }, false);
         });
 
-        function preventDefaults(e) {
-            e.preventDefault();
-            e.stopPropagation();
-        }
-
         ['dragenter', 'dragover'].forEach(eventName => {
-            dropZone.addEventListener(eventName, () => {
-                dropZone.classList.add('drag-active');
-            }, false);
+            dropZone.addEventListener(eventName, () => dropZone.classList.add('drag-active'), false);
         });
 
         ['dragleave', 'drop'].forEach(eventName => {
-            dropZone.addEventListener(eventName, () => {
-                dropZone.classList.remove('drag-active');
-            }, false);
+            dropZone.addEventListener(eventName, () => dropZone.classList.remove('drag-active'), false);
         });
 
         dropZone.addEventListener('drop', (e) => {
-            const dt = e.dataTransfer;
-            const files = dt.files;
-            if (files.length > 0) processFile(files[0]);
+            if (e.dataTransfer.files.length > 0) processFile(e.dataTransfer.files[0]);
         });
 
         fileInput.addEventListener('change', function(e) {
@@ -498,17 +509,14 @@
             const progressContainer = document.getElementById('progress-container');
             const progressBar = document.getElementById('progress-bar');
             
-            // Animasi Loading Biru
             uploadText.innerText = 'Membaca data...';
-            uploadText.classList.remove('text-red-500', 'text-emerald-500');
-            uploadIcon.classList.replace('ph-cloud-arrow-up', 'ph-spinner');
-            uploadIcon.classList.add('animate-spin');
+            uploadText.className = 'text-2xl font-black text-blue-500 mb-3 tracking-tight';
             
-            uploadIconContainer.classList.remove('text-slate-400', 'text-red-500', 'text-emerald-500');
-            uploadIconContainer.classList.add('text-blue-500');
+            uploadIcon.className = 'ph-bold ph-spinner text-5xl animate-spin';
+            uploadIconContainer.className = 'w-24 h-24 rounded-full neu-flat flex items-center justify-center mb-8 text-blue-500 transition-all duration-300 relative';
             
             progressContainer.classList.remove('hidden');
-            progressBar.style.width = '30%';
+            progressBar.className = 'h-full bg-gradient-to-r from-blue-400 to-blue-500 w-1/3 transition-all duration-300 rounded-full shadow-[0_0_10px_rgba(59,130,246,0.5)]';
 
             const reader = new FileReader();
             
@@ -521,37 +529,24 @@
                     const sheetName = workbook.SheetNames[0];
                     const sheet = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], { header: 1 });
                     
-                    // Keamanan A2
                     if (currentUser !== 'admin') {
                         const a2Value = String(sheet[1] && sheet[1][0] ? sheet[1][0] : '').toLowerCase();
                         if (!a2Value.includes(currentUser.toLowerCase())) {
                             uploadText.innerText = 'Akses Ditolak!';
-                            uploadText.classList.add('text-red-500');
+                            uploadText.className = 'text-2xl font-black text-rose-500 mb-3 tracking-tight';
                             
-                            uploadIcon.classList.replace('ph-spinner', 'ph-warning');
-                            uploadIcon.classList.remove('animate-spin');
-                            uploadIconContainer.classList.remove('text-blue-500');
-                            uploadIconContainer.classList.add('text-red-500');
+                            uploadIcon.className = 'ph-fill ph-warning-circle text-5xl';
+                            uploadIconContainer.className = 'w-24 h-24 rounded-full neu-flat flex items-center justify-center mb-8 text-rose-500 transition-all duration-300 relative';
                             
-                            progressBar.classList.replace('bg-emerald-500', 'bg-red-500');
-                            progressBar.style.width = '100%';
+                            progressBar.className = 'h-full bg-rose-500 w-full transition-all duration-300 rounded-full';
                             
                             showNotification('File ini bukan milik puskesmas Anda.', 'error');
                             return;
                         }
                     }
 
-                    // Reset styling success
-                    uploadText.classList.remove('text-red-500');
-                    uploadIconContainer.classList.remove('text-red-500', 'text-blue-500');
-                    uploadIconContainer.classList.add('text-emerald-500');
-                    progressBar.classList.remove('bg-red-500');
-                    progressBar.classList.add('bg-emerald-500');
-
-                    // Filter Logic (Baris 10 dst, Kolom H=7)
                     const startIndex = 9;
                     const colHIndex = 7;
-                    
                     const dmData = [];
                     const htData = [];
                     
@@ -570,10 +565,13 @@
                     currentPage.HT = 1;
                     
                     progressBar.style.width = '100%';
+                    progressBar.className = 'h-full bg-gradient-to-r from-emerald-400 to-emerald-500 w-full transition-all duration-300 rounded-full shadow-[0_0_10px_rgba(16,185,129,0.6)]';
+                    
                     uploadText.innerText = 'Selesai!';
-                    uploadText.classList.add('text-emerald-500');
-                    uploadIcon.classList.replace('ph-spinner', 'ph-check-circle');
-                    uploadIcon.classList.remove('animate-spin');
+                    uploadText.className = 'text-2xl font-black text-emerald-500 mb-3 tracking-tight';
+                    
+                    uploadIcon.className = 'ph-bold ph-check-circle text-5xl';
+                    uploadIconContainer.className = 'w-24 h-24 rounded-full neu-flat flex items-center justify-center mb-8 text-emerald-500 transition-all duration-300 relative';
                     
                     setTimeout(() => {
                         resultsSection.classList.remove('hidden');
@@ -582,20 +580,18 @@
                         renderTable('DM');
                         renderTable('HT');
 
-                        // Reset progress UI setelah beberapa saat (kembali ke abu-abu)
                         setTimeout(() => {
-                            uploadText.innerText = 'Pilih File Excel Lain';
-                            uploadText.classList.remove('text-emerald-500');
-                            uploadIcon.classList.replace('ph-check-circle', 'ph-cloud-arrow-up');
-                            uploadIconContainer.classList.remove('text-emerald-500');
-                            uploadIconContainer.classList.add('text-slate-400');
+                            uploadText.innerText = 'Pilih File Excel Anda';
+                            uploadText.className = 'text-2xl font-black text-slate-700 mb-3 tracking-tight';
+                            uploadIcon.className = 'ph-duotone ph-cloud-arrow-up text-5xl transition-transform duration-300';
+                            uploadIconContainer.className = 'w-24 h-24 rounded-full neu-flat flex items-center justify-center mb-8 text-slate-400 transition-all duration-300 relative group-hover:-translate-y-2';
                             
                             progressContainer.classList.add('hidden');
                             progressBar.style.width = '0%';
-                        }, 2000);
-                    }, 500);
+                        }, 2500);
+                    }, 600);
 
-                }, 500); // Artificial delay animasi
+                }, 600);
             };
             
             reader.readAsArrayBuffer(file);
@@ -608,11 +604,10 @@
             const pagination = document.getElementById(`${type.toLowerCase()}-pagination`);
             const pageInfo = document.getElementById(`${type.toLowerCase()}-page-info`);
             
-            // Header
             thead.innerHTML = "";
             dataObj.columns.forEach((col, idx) => {
-                let thClass = "py-4 px-5 text-left border-b border-slate-300";
-                if (idx === 0) thClass += " sticky-col border-r border-slate-200/50 shadow-[2px_0_5px_rgba(0,0,0,0.03)] rounded-tl-xl";
+                let thClass = "py-4 px-6 text-left border-b border-slate-200/60";
+                if (idx === 0) thClass += " sticky-col border-r border-slate-200/50 shadow-[4px_0_10px_rgba(0,0,0,0.02)] rounded-tl-xl";
                 
                 const th = document.createElement('th');
                 th.className = thClass;
@@ -620,15 +615,13 @@
                 thead.appendChild(th);
             });
 
-            // Body
             tbody.innerHTML = "";
             if (dataObj.rows.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="${dataObj.columns.length}" class="py-12 text-center text-slate-400 font-medium italic"><div class="inline-block px-6 py-3 rounded-2xl neu-pressed">Tidak ada data ditemukan untuk kriteria ini.</div></td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="${dataObj.columns.length}" class="py-16 text-center text-slate-400 font-medium italic"><div class="inline-block px-8 py-4 rounded-[1.5rem] neu-pressed shadow-inner">Tidak ada data ditemukan untuk kriteria ini.</div></td></tr>`;
                 if(pagination) pagination.classList.add('hidden');
                 return;
             }
 
-            // Pagination calculation
             const totalPages = Math.ceil(dataObj.rows.length / rowsPerPage);
             const startIdx = (currentPage[type] - 1) * rowsPerPage;
             const endIdx = startIdx + rowsPerPage;
@@ -636,22 +629,22 @@
 
             paginatedRows.forEach((row, rowIndex) => {
                 const tr = document.createElement('tr');
-                tr.className = "hover:bg-slate-300/20 transition-colors border-b border-slate-200/60 last:border-0";
+                tr.className = "hover:bg-slate-200/40 transition-colors duration-200 border-b border-slate-200/50 last:border-0";
                 
                 dataObj.columns.forEach((col, colIndex) => {
-                    let tdClass = "py-3 px-5 whitespace-nowrap";
+                    let tdClass = "py-4 px-6 whitespace-nowrap transition-colors";
                     let cellValue = row[col.index];
                     
                     if (cellValue === undefined || cellValue === null || cellValue === "") cellValue = "-";
                     
-                    if (type === 'DM' && colIndex > 1) { // Hapus mg/dL pada bulan DM
+                    if (type === 'DM' && colIndex > 1) {
                         if (typeof cellValue === 'string') {
                             cellValue = cellValue.replace(/mg\/dl/i, '').trim();
                         }
                     }
 
                     if (colIndex === 0) {
-                        tdClass += " sticky-col border-r border-slate-200/50 shadow-[2px_0_5px_rgba(0,0,0,0.03)] font-bold text-slate-700";
+                        tdClass += " sticky-col border-r border-slate-200/50 shadow-[4px_0_10px_rgba(0,0,0,0.02)] font-bold text-slate-700 group-hover:bg-slate-100";
                     }
 
                     const td = document.createElement('td');
@@ -662,7 +655,6 @@
                 tbody.appendChild(tr);
             });
 
-            // Update Pagination UI
             if (totalPages > 1) {
                 if(pagination) pagination.classList.remove('hidden');
                 if(pageInfo) pageInfo.innerText = `Hal ${currentPage[type]} dari ${totalPages}`;
@@ -684,7 +676,7 @@
 
         function copyTableData(type, btnElement) {
             const originalText = btnElement.innerHTML;
-            btnElement.innerHTML = `<i class="ph ph-check text-lg"></i> <span>Tersalin!</span>`;
+            btnElement.innerHTML = `<i class="ph-bold ph-check text-lg text-emerald-500"></i> <span class="text-emerald-500">Tersalin!</span>`;
             
             setTimeout(() => {
                 btnElement.innerHTML = originalText;
@@ -698,14 +690,12 @@
 
             let tsvContent = "";
             
-            // Menyalin KESELURUHAN baris (bukan cuma halaman saat ini)
             dataObj.rows.forEach(row => {
                 let rowString = "";
                 dataObj.columns.forEach((col, index) => {
                     let cellValue = row[col.index];
                     if (cellValue === undefined || cellValue === null || cellValue === "") cellValue = "-";
                     
-                    // Bersihkan tulisan mg/dL untuk DM
                     if (type === 'dm' && index > 1) {
                         if (typeof cellValue === 'string') {
                             cellValue = cellValue.replace(/mg\/dl/i, '').trim();
@@ -714,7 +704,6 @@
                     
                     rowString += cellValue;
 
-                    // Sisipkan 2 kolom Tab kosong setelah "Pasien Terdiagnosa"
                     if (type === 'dm' && index === 1) {
                         rowString += "\t\t";
                     } else if (type === 'ht' && index === 2) {
@@ -728,7 +717,6 @@
                 tsvContent += rowString + "\n";
             });
 
-            // Eksekusi copy manual menggunakan textarea
             const textarea = document.createElement("textarea");
             textarea.value = tsvContent;
             textarea.style.position = "fixed";
