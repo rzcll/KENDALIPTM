@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KENDALI - Kohort Terkendali</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- SheetJS for Excel Processing -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #e0e5ec; /* Light Grey Base */
+        }
+        
+        /* Neumorphism Utilities */
+        .neu-flat {
+            background: #e0e5ec;
+            box-shadow: 12px 12px 24px #a3b1c6, -12px -12px 24px #ffffff;
+        }
+        .neu-pressed {
+            background: #e0e5ec;
+            box-shadow: inset 8px 8px 16px #a3b1c6, inset -8px -8px 16px #ffffff;
+        }
+        .neu-btn {
+            background: #e0e5ec;
+            box-shadow: 6px 6px 12px #a3b1c6, -6px -6px 12px #ffffff;
+            transition: all 0.2s ease-in-out;
+        }
+        .neu-btn:hover {
+            box-shadow: 4px 4px 8px #a3b1c6, -4px -4px 8px #ffffff;
+        }
+        .neu-btn:active {
+            box-shadow: inset 4px 4px 8px #a3b1c6, inset -4px -4px 8px #ffffff;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #e0e5ec;
+            border-radius: 4px;
+            box-shadow: inset 2px 2px 4px #a3b1c6, inset -2px -2px 4px #ffffff;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #94a3b8;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #64748b;
+        }
+
+        /* Table Sticky Column Fix */
+        .sticky-col {
+            position: sticky;
+            left: 0;
+            background-color: #e0e5ec;
+            z-index: 10;
+        }
+        .sticky-col-2 {
+            position: sticky;
+            left: 120px; /* Sesuaikan dengan lebar kolom pertama */
+            background-color: #e0e5ec;
+            z-index: 10;
+        }
+    </style>
+</head>
+<body class="min-h-screen relative overflow-x-hidden">
+
+    <div id="login-section" class="fixed inset-0 z-[100] flex flex-col items-center justify-center p-4 bg-[#e0e5ec] transition-all duration-700 ease-in-out">
+        <div id="login-box" class="neu-flat p-10 rounded-[2.5rem] w-full max-w-md flex flex-col items-center transition-all duration-700 transform scale-100 opacity-100">
+            
+            <div class="w-20 h-20 neu-flat rounded-full flex items-center justify-center mb-6 text-emerald-500">
+                <i class="ph ph-shield-check text-4xl"></i>
+            </div>
+            
+            <h1 class="text-3xl font-bold text-slate-700 mb-2 tracking-tight">KENDALI PTM</h1>
+            <p class="text-slate-500 text-sm mb-8 text-center">Kohort Terkendali pasien Diabetes dan Hipertensi</p>
+
+            <div class="w-full space-y-5">
+                <div>
+                    <label class="block text-sm font-semibold text-slate-500 mb-2 ml-2">Username Fasilitas</label>
+                    <input type="text" id="username" placeholder="Masukkan username..." 
+                        class="w-full px-5 py-4 rounded-2xl bg-[#e0e5ec] text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-400 placeholder-slate-400 neu-pressed transition-all">
+                </div>
+                
+                <div id="login-error" class="hidden bg-red-100 text-red-600 px-4 py-3 rounded-xl text-sm font-medium text-center shadow-inner">
+                    Username tidak ditemukan!
+                </div>
+
+                <button id="login-btn" class="w-full py-4 rounded-2xl text-emerald-600 font-bold text-lg neu-btn flex justify-center items-center gap-2">
+                    <span id="login-text">Masuk Sistem</span>
+                    <i id="login-spinner" class="ph ph-spinner animate-spin hidden text-xl"></i>
+                </button>
+            </div>
+
+            <p class="mt-8 text-xs text-slate-400 font-bold text-center">Catatan: Anda bisa menggunakan username <span class="text-emerald-500">admin</span> untuk testing.</p>
+        </div>
+    </div>
+
+    <div id="app-section" class="hidden flex-col min-h-screen opacity-0 translate-y-8 transition-all duration-700 ease-out transform">
+        
+        <!-- Top Navigation Bar -->
+        <nav class="neu-flat px-6 py-4 flex justify-between items-center mb-8 sticky top-0 z-50">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 neu-flat rounded-full flex items-center justify-center text-emerald-500">
+                    <i class="ph ph-activity text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold text-slate-700 tracking-tight">KENDALI PTM</h1>
+                    <p class="text-xs text-slate-500 font-medium hidden sm:block">Kohort Terkendali pasien Diabetes dan Hipertensi</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-4">
+                <div class="flex flex-col items-end">
+                    <span class="text-xs text-slate-400 font-medium">Selamat datang,</span>
+                    <span id="user-display-name" class="text-sm font-bold text-slate-700 capitalize">User</span>
+                </div>
+                <button id="logout-btn" class="w-10 h-10 neu-btn rounded-full flex items-center justify-center text-red-400 hover:text-red-500" title="Keluar">
+                    <i class="ph ph-sign-out text-lg"></i>
+                </button>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="flex-grow flex flex-col items-center px-4 pb-12 w-full max-w-7xl mx-auto">
+            
+            <!-- Header Text -->
+            <div class="text-center mb-8">
+                <h2 class="text-3xl md:text-4xl font-extrabold text-slate-600 drop-shadow-sm mb-2 tracking-tight">
+                    Unggah Data KENDALI
+                </h2>
+                <div class="h-1.5 w-24 bg-emerald-400 mx-auto rounded-full mt-4 shadow-[0_0_10px_rgba(52,211,153,0.5)]"></div>
+            </div>
+
+            <!-- Upload Zone -->
+            <div class="w-full max-w-2xl relative mb-12">
+                <input type="file" id="file-upload" accept=".xlsx, .xls, .csv" class="hidden" />
+                <label for="file-upload" id="drop-zone" 
+                    class="block w-full neu-pressed rounded-3xl p-10 cursor-pointer transition-all duration-300 group flex flex-col items-center justify-center min-h-[250px]">
+                    
+                    <div id="icon-container" class="w-24 h-24 neu-flat rounded-full flex items-center justify-center mb-6 text-slate-500 group-hover:text-emerald-500 transition-colors duration-300 relative">
+                        <i id="upload-icon" class="ph ph-cloud-arrow-up text-5xl transition-all duration-300 group-hover:-translate-y-1"></i>
+                    </div>
+                    
+                    <p id="upload-text" class="text-xl font-bold text-slate-600 text-center mb-2">
+                        Pilih File Excel
+                    </p>
+                    <p id="upload-subtext" class="text-sm text-slate-500 text-center">
+                        Atau seret file ke area ini
+                    </p>
+                </label>
+                
+                <!-- Progress Bar -->
+                <div class="absolute -bottom-6 left-1/2 transform -translate-x-1/2 w-4/5 h-2 neu-pressed rounded-full overflow-hidden">
+                    <div id="progress-bar" class="h-full bg-emerald-500 w-0 transition-all duration-500 ease-out shadow-[0_0_8px_rgba(52,211,153,0.8)]"></div>
+                </div>
+            </div>
+
+            <div id="results-section" class="w-full hidden flex-col gap-10 opacity-0 transition-opacity duration-700">
+                
+                <!-- Controls -->
+                <div class="flex justify-between items-end">
+                    <h3 class="text-2xl font-bold text-slate-700">Hasil Pemrosesan</h3>
+                    <button id="reset-btn" class="px-5 py-2.5 neu-btn rounded-xl text-slate-600 font-bold text-sm flex items-center gap-2">
+                        <i class="ph ph-arrow-counter-clockwise"></i> Proses File Lain
+                    </button>
+                </div>
+
+                <!-- Table 1: DM Category -->
+                <div class="w-full flex flex-col gap-4">
+                    <div class="flex items-center gap-4">
+                        <div class="flex items-center gap-3">
+                            <span class="w-3 h-8 bg-blue-500 rounded-full shadow-[0_0_8px_rgba(59,130,246,0.6)]"></span>
+                            <h4 class="text-xl font-bold text-slate-700">DM Terkendali</h4>
+                        </div>
+                        <button onclick="copyTableData('dm-table-body', this)" class="px-4 py-1.5 neu-btn rounded-lg text-blue-600 font-bold text-xs flex items-center gap-2">
+                            <i class="ph ph-copy"></i> <span>Salin Isi</span>
+                        </button>
+                    </div>
+                    <div class="w-full overflow-x-auto rounded-2xl neu-flat">
+                        <table class="w-full text-sm text-left border-collapse whitespace-nowrap">
+                            <thead class="bg-[#d5dbe4] text-slate-600 uppercase font-bold text-xs">
+                                <tr id="dm-table-header"></tr>
+                            </thead>
+                            <tbody id="dm-table-body" class="divide-y divide-[#c8d0da] text-slate-600">
+                                <!-- Data DM goes here -->
+                            </tbody>
+                        </table>
+                        <div id="dm-empty" class="hidden p-10 text-center text-slate-400 font-medium flex flex-col items-center justify-center gap-2">
+                            <i class="ph ph-folder-dashed text-4xl"></i>
+                            Tidak ada data DM Terkendali yang ditemukan.
+                        </div>
+                        
+                        <!-- Kontrol Halaman DM -->
+                        <div id="dm-pagination" class="hidden flex justify-between items-center p-4 border-t border-[#c8d0da]">
+                            <span id="dm-page-info" class="text-xs font-bold text-slate-500">Halaman 1 dari 1</span>
+                            <div class="flex gap-2">
+                                <button id="dm-prev" onclick="changePage('dm', 'prev')" class="px-3 py-1.5 neu-btn rounded-lg text-slate-600 font-bold text-xs disabled:opacity-50 disabled:cursor-not-allowed"><i class="ph ph-caret-left"></i> Prev</button>
+                                <button id="dm-next" onclick="changePage('dm', 'next')" class="px-3 py-1.5 neu-btn rounded-lg text-slate-600 font-bold text-xs disabled:opacity-50 disabled:cursor-not-allowed">Next <i class="ph ph-caret-right"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Garis Pemisah Visual -->
+                <div class="w-full h-1 neu-pressed rounded-full mt-6 mb-2 opacity-60"></div>
+
+                <!-- Table 2: HT Category -->
+                <div class="w-full flex flex-col gap-4">
+                    <div class="flex items-center gap-4">
+                        <div class="flex items-center gap-3">
+                            <span class="w-3 h-8 bg-emerald-500 rounded-full shadow-[0_0_8px_rgba(16,185,129,0.6)]"></span>
+                            <h4 class="text-xl font-bold text-slate-700">HT Terkendali</h4>
+                        </div>
+                        <button onclick="copyTableData('ht-table-body', this)" class="px-4 py-1.5 neu-btn rounded-lg text-emerald-600 font-bold text-xs flex items-center gap-2">
+                            <i class="ph ph-copy"></i> <span>Salin Isi</span>
+                        </button>
+                    </div>
+                    <div class="w-full overflow-x-auto rounded-2xl neu-flat">
+                        <table class="w-full text-sm text-left border-collapse whitespace-nowrap">
+                            <thead class="bg-[#d5dbe4] text-slate-600 uppercase font-bold text-xs">
+                                <tr id="ht-table-header"></tr>
+                            </thead>
+                            <tbody id="ht-table-body" class="divide-y divide-[#c8d0da] text-slate-600">
+                                <!-- Data HT goes here -->
+                            </tbody>
+                        </table>
+                        <div id="ht-empty" class="hidden p-10 text-center text-slate-400 font-medium flex flex-col items-center justify-center gap-2">
+                            <i class="ph ph-folder-dashed text-4xl"></i>
+                            Tidak ada data HT Terkendali yang ditemukan.
+                        </div>
+                        
+                        <!-- Kontrol Halaman HT -->
+                        <div id="ht-pagination" class="hidden flex justify-between items-center p-4 border-t border-[#c8d0da]">
+                            <span id="ht-page-info" class="text-xs font-bold text-slate-500">Halaman 1 dari 1</span>
+                            <div class="flex gap-2">
+                                <button id="ht-prev" onclick="changePage('ht', 'prev')" class="px-3 py-1.5 neu-btn rounded-lg text-slate-600 font-bold text-xs disabled:opacity-50 disabled:cursor-not-allowed"><i class="ph ph-caret-left"></i> Prev</button>
+                                <button id="ht-next" onclick="changePage('ht', 'next')" class="px-3 py-1.5 neu-btn rounded-lg text-slate-600 font-bold text-xs disabled:opacity-50 disabled:cursor-not-allowed">Next <i class="ph ph-caret-right"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <script>
+        /* === KONFIGURASI === */
+        // URL Google Script Anda (Biarkan kosong jika ingin full testing tanpa server)
+        const GOOGLE_SCRIPT_URL = ''; 
+
+        // Pemetaan Kolom Excel (Index dimulai dari 0: A=0, B=1, C=2, dst)
+        const dmColumns = [
+            { header: "NIK", index: 2, sticky: true }, // Kolom C
+            { header: "Pasien Terdiagnosa", index: 4 }, // Kolom E
+            { header: "Januari", index: 8 },  // I
+            { header: "Februari", index: 15 }, // P
+            { header: "Maret", index: 22 },    // W
+            { header: "April", index: 29 },    // AD
+            { header: "Mei", index: 36 },      // AK
+            { header: "Juni", index: 43 },     // AR
+            { header: "Juli", index: 50 },     // AY
+            { header: "Agustus", index: 57 },  // BF
+            { header: "September", index: 64 },// BM
+            { header: "Oktober", index: 71 },  // BT
+            { header: "November", index: 78 }, // CA
+            { header: "Desember", index: 85 }  // CH
+        ];
+
+        const htColumns = [
+            { header: "Nama", index: 1, sticky: true }, // Kolom B
+            { header: "NIK", index: 2, sticky2: true }, // Kolom C
+            { header: "Pasien Terdiagnosa", index: 4 }, // Kolom E
+            { header: "Jan (L)", index: 11 }, { header: "Jan (M)", index: 12 },
+            { header: "Feb (S)", index: 18 }, { header: "Feb (T)", index: 19 },
+            { header: "Mar (Z)", index: 25 }, { header: "Mar (AA)", index: 26 },
+            { header: "Apr (AG)", index: 32 }, { header: "Apr (AH)", index: 33 },
+            { header: "Mei (AN)", index: 39 }, { header: "Mei (AO)", index: 40 },
+            { header: "Jun (AU)", index: 46 }, { header: "Jun (AV)", index: 47 },
+            { header: "Jul (BB)", index: 53 }, { header: "Jul (BC)", index: 54 },
+            { header: "Agu (BI)", index: 60 }, { header: "Agu (BJ)", index: 61 },
+            { header: "Sep (BP)", index: 67 }, { header: "Sep (BQ)", index: 68 },
+            { header: "Okt (BW)", index: 74 }, { header: "Okt (BX)", index: 75 },
+            { header: "Nov (CD)", index: 81 }, { header: "Nov (CE)", index: 82 },
+            { header: "Des (CK)", index: 88 }, { header: "Des (CL)", index: 89 }
+        ];
+
+        /* === ELEMEN DOM === */
+        const loginSection = document.getElementById('login-section');
+        const appSection = document.getElementById('app-section');
+        const loginBtn = document.getElementById('login-btn');
+        const logoutBtn = document.getElementById('logout-btn');
+        const usernameInput = document.getElementById('username');
+        const loginError = document.getElementById('login-error');
+        const userDisplayName = document.getElementById('user-display-name');
+        
+        const dropZone = document.getElementById('drop-zone');
+        const fileInput = document.getElementById('file-upload');
+        const resultsSection = document.getElementById('results-section');
+        const resetBtn = document.getElementById('reset-btn');
+        
+        let globalProcessedData = {
+            DM: { rows: [], columns: dmColumns },
+            HT: { rows: [], columns: htColumns }
+        };
+
+        // Variabel Pagination
+        const ITEMS_PER_PAGE = 5;
+        let currentPage = { dm: 1, ht: 1 };
+
+        // Cek Session saat reload
+        window.addEventListener('DOMContentLoaded', () => {
+            if (sessionStorage.getItem('isLoggedIn') === 'true') {
+                const uname = sessionStorage.getItem('username');
+                loginSection.classList.add('hidden');
+                appSection.classList.remove('hidden', 'opacity-0', 'translate-y-8');
+                appSection.classList.add('opacity-100', 'translate-y-0');
+                userDisplayName.innerText = uname;
+            }
+        });
+
+        loginBtn.addEventListener('click', async () => {
+            const username = usernameInput.value.trim();
+            if (!username) return;
+
+            setLoginLoading(true);
+            loginError.classList.add('hidden');
+
+            // Bypass untuk Admin
+            if (username.toLowerCase() === 'admin') {
+                setTimeout(() => suksesLogin(username), 800);
+                return;
+            }
+
+            if (!GOOGLE_SCRIPT_URL) {
+                setTimeout(() => suksesLogin(username), 800);
+                return;
+            }
+
+            try {
+                const response = await fetch(`${GOOGLE_SCRIPT_URL}?username=${encodeURIComponent(username)}`);
+                const data = await response.json();
+                if (data.status === 'success') {
+                    suksesLogin(username);
+                } else {
+                    showLoginError(data.message || 'Username tidak terdaftar.');
+                }
+            } catch (error) {
+                showLoginError('Gagal terhubung ke server. Gunakan admin sementara.');
+            }
+        });
+
+        usernameInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') loginBtn.click();
+        });
+
+        logoutBtn.addEventListener('click', () => {
+            sessionStorage.removeItem('isLoggedIn');
+            sessionStorage.removeItem('username');
+            
+            // Animasi Keluar
+            appSection.classList.remove('opacity-100', 'translate-y-0');
+            appSection.classList.add('opacity-0', 'translate-y-8');
+            
+            setTimeout(() => {
+                appSection.classList.add('hidden');
+                resetAppUI();
+                
+                loginSection.classList.remove('hidden');
+                const loginBox = document.getElementById('login-box');
+                void loginSection.offsetWidth; // Trigger reflow
+                
+                loginSection.classList.remove('opacity-0', 'pointer-events-none');
+                if (loginBox) {
+                    loginBox.classList.remove('scale-95', 'opacity-0');
+                    loginBox.classList.add('scale-100', 'opacity-100');
+                }
+                
+                usernameInput.value = '';
+                loginError.classList.add('hidden');
+                setLoginLoading(false);
+            }, 700);
+        });
+
+        function setLoginLoading(isLoading) {
+            const text = document.getElementById('login-text');
+            const spinner = document.getElementById('login-spinner');
+            if (isLoading) {
+                text.innerText = 'Memeriksa...';
+                spinner.classList.remove('hidden');
+                loginBtn.disabled = true;
+            } else {
+                text.innerText = 'Masuk Sistem';
+                spinner.classList.add('hidden');
+                loginBtn.disabled = false;
+            }
+        }
+
+        function suksesLogin(username) {
+            sessionStorage.setItem('isLoggedIn', 'true');
+            sessionStorage.setItem('username', username);
+            showAppSection(username);
+        }
+
+        function showAppSection(username) {
+            const loginBox = document.getElementById('login-box');
+            if (loginBox) {
+                loginBox.classList.remove('scale-100', 'opacity-100');
+                loginBox.classList.add('scale-95', 'opacity-0');
+            }
+            loginSection.classList.add('opacity-0', 'pointer-events-none');
+            
+            setTimeout(() => {
+                loginSection.classList.add('hidden');
+                appSection.classList.remove('hidden');
+                void appSection.offsetWidth;
+                appSection.classList.remove('opacity-0', 'translate-y-8');
+                appSection.classList.add('opacity-100', 'translate-y-0');
+                userDisplayName.innerText = username;
+            }, 700);
+        }
+
+        function showLoginError(msg) {
+            setLoginLoading(false);
+            loginError.innerText = msg;
+            loginError.classList.remove('hidden');
+        }
+
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, preventDefaults, false);
+            document.body.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) { e.preventDefault(); e.stopPropagation(); }
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZone.addEventListener(eventName, () => {
+                dropZone.classList.remove('neu-pressed');
+                dropZone.classList.add('neu-flat'); // Efek cembung saat dihover file
+            });
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, () => {
+                dropZone.classList.add('neu-pressed');
+                dropZone.classList.remove('neu-flat');
+            });
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            const dt = e.dataTransfer;
+            const file = dt.files[0];
+            if (file) processFile(file);
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) processFile(file);
+        });
+
+        function resetAppUI() {
+            fileInput.value = '';
+            resultsSection.classList.add('hidden');
+            resultsSection.classList.remove('opacity-100');
+            hideMessage();
+            globalProcessedData = { DM: { rows: [], columns: dmColumns }, HT: { rows: [], columns: htColumns } };
+            
+            // Reset Pagination
+            currentPage = { dm: 1, ht: 1 };
+            
+            const progressBar = document.getElementById('progress-bar');
+            progressBar.style.width = '0%';
+            progressBar.classList.replace('bg-red-500', 'bg-emerald-500');
+            
+            const uploadIcon = document.getElementById('upload-icon');
+            const iconContainer = document.getElementById('icon-container');
+            uploadIcon.className = 'ph ph-cloud-arrow-up text-5xl transition-all duration-300 group-hover:-translate-y-1';
+            iconContainer.classList.remove('text-emerald-500', 'text-red-500');
+            iconContainer.classList.add('text-slate-500');
+            
+            document.getElementById('upload-text').innerText = 'Pilih File Excel';
+            document.getElementById('upload-subtext').innerText = 'Atau seret file ke area ini';
+        }
+
+        resetBtn.addEventListener('click', resetAppUI);
+
+        function processFile(file) {
+            const currentUser = sessionStorage.getItem('username');
+            resetAppUI();
+            
+            document.getElementById('upload-text').innerText = 'Membaca file...';
+            document.getElementById('upload-subtext').innerText = file.name;
+            const progressBar = document.getElementById('progress-bar');
+            progressBar.style.width = '30%';
+
+            const reader = new FileReader();
+            
+            reader.onload = function (e) {
+                progressBar.style.width = '60%';
+                
+                // Tambahkan artificial delay agar animasi terlihat halus
+                setTimeout(() => {
+                    try {
+                        const data = new Uint8Array(e.target.result);
+                        const workbook = XLSX.read(data, { type: 'array' });
+                        const firstSheetName = workbook.SheetNames[0];
+                        const worksheet = workbook.Sheets[firstSheetName];
+                        const sheet_data = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: null });
+
+                        // VALIDASI A2 UNTUK KEAMANAN
+                        if (currentUser.toLowerCase() !== 'admin') {
+                            const a2Content = (sheet_data[1] && sheet_data[1][0]) ? String(sheet_data[1][0]).toLowerCase() : "";
+                            if (!a2Content.includes(currentUser.toLowerCase())) {
+                                throw new Error("Akses Ditolak! File ini bukan milik Puskesmas Anda.");
+                            }
+                        }
+
+                        // Mulai baca dari baris ke-10 (index 9)
+                        for (let r = 9; r < sheet_data.length; r++) {
+                            const row = sheet_data[r];
+                            if (!row || row.length === 0) continue;
+
+                            const indikator = String(row[7] || "").trim().toUpperCase(); // Kolom H (Index 7)
+
+                            if (indikator.includes("DM")) {
+                                globalProcessedData.DM.rows.push(row);
+                            } 
+                            if (indikator.includes("HT")) {
+                                globalProcessedData.HT.rows.push(row);
+                            }
+                        }
+
+                        progressBar.style.width = '100%';
+                        
+                        const uploadIcon = document.getElementById('upload-icon');
+                        const iconContainer = document.getElementById('icon-container');
+                        uploadIcon.className = 'ph ph-check-circle text-5xl';
+                        iconContainer.classList.add('text-emerald-500');
+                        document.getElementById('upload-text').innerText = 'Proses Selesai!';
+                        
+                        setTimeout(() => {
+                            displayResults();
+                        }, 500);
+
+                    } catch (error) {
+                        progressBar.style.width = '100%';
+                        progressBar.classList.replace('bg-emerald-500', 'bg-red-500');
+                        const uploadIcon = document.getElementById('upload-icon');
+                        const iconContainer = document.getElementById('icon-container');
+                        uploadIcon.className = 'ph ph-warning-circle text-5xl';
+                        iconContainer.classList.add('text-red-500');
+                        
+                        document.getElementById('upload-text').innerText = 'Gagal Memproses';
+                        showMessage(error.message || 'Terjadi kesalahan saat membaca file.', 'error');
+                    }
+                }, 500);
+            };
+
+            reader.readAsArrayBuffer(file);
+        }
+
+        function displayResults() {
+            currentPage = { dm: 1, ht: 1 }; // Reset ke halaman 1 setiap baca file baru
+            renderTable('dm', globalProcessedData.DM, true, currentPage.dm);
+            renderTable('ht', globalProcessedData.HT, false, currentPage.ht);
+
+            resultsSection.classList.remove('hidden');
+            setTimeout(() => {
+                resultsSection.classList.add('opacity-100');
+            }, 50);
+        }
+
+        // Tambah parameter page
+        function renderTable(type, data, isDM, page) {
+            const headerRow = document.getElementById(`${type}-table-header`);
+            const body = document.getElementById(`${type}-table-body`);
+            const emptyState = document.getElementById(`${type}-empty`);
+            const paginationCtrl = document.getElementById(`${type}-pagination`);
+            
+            headerRow.innerHTML = '';
+            body.innerHTML = '';
+
+            data.columns.forEach(col => {
+                const th = document.createElement('th');
+                th.className = `px-6 py-4 tracking-wider ${col.sticky ? 'sticky-col' : ''} ${col.sticky2 ? 'sticky-col-2' : ''}`;
+                th.textContent = col.header;
+                headerRow.appendChild(th);
+            });
+
+            if (data.rows.length === 0) {
+                emptyState.classList.remove('hidden');
+                body.parentElement.classList.add('hidden');
+                paginationCtrl.classList.add('hidden');
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+            body.parentElement.classList.remove('hidden');
+            paginationCtrl.classList.remove('hidden');
+
+            // Logika Pagination (Ambil 5 Data)
+            const totalPages = Math.ceil(data.rows.length / ITEMS_PER_PAGE);
+            const startIndex = (page - 1) * ITEMS_PER_PAGE;
+            const endIndex = startIndex + ITEMS_PER_PAGE;
+            const paginatedRows = data.rows.slice(startIndex, endIndex);
+
+            // Render hanya data di halaman tersebut
+            paginatedRows.forEach(row => {
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-[#f0f3f8] transition-colors';
+                
+                data.columns.forEach(col => {
+                    const td = document.createElement('td');
+                    td.className = `px-6 py-3 whitespace-nowrap ${col.sticky ? 'sticky-col font-bold' : ''} ${col.sticky2 ? 'sticky-col-2 font-bold' : ''}`;
+                    
+                    let val = row[col.index];
+                    val = (val !== null && val !== undefined && val !== '') ? val : '-';
+
+                    if (isDM && typeof val === 'string') {
+                        val = val.replace(/mg\/dl/gi, '').trim();
+                    }
+
+                    td.textContent = val;
+                    tr.appendChild(td);
+                });
+                body.appendChild(tr);
+            });
+
+            // Update UI Tombol Pagination
+            document.getElementById(`${type}-page-info`).textContent = `Halaman ${page} dari ${totalPages} (${data.rows.length} Total Data)`;
+            document.getElementById(`${type}-prev`).disabled = page === 1;
+            document.getElementById(`${type}-next`).disabled = page === totalPages;
+        }
+
+        // Fungsi berpindah halaman
+        function changePage(type, direction) {
+            const isDM = type === 'dm';
+            const data = isDM ? globalProcessedData.DM : globalProcessedData.HT;
+            const totalPages = Math.ceil(data.rows.length / ITEMS_PER_PAGE);
+            
+            if (direction === 'prev' && currentPage[type] > 1) {
+                currentPage[type]--;
+            } else if (direction === 'next' && currentPage[type] < totalPages) {
+                currentPage[type]++;
+            }
+            
+            renderTable(type, data, isDM, currentPage[type]);
+        }
+
+        // Logika Copy diperbaiki menggunakan execCommand untuk bypass restriksi iframe
+        function copyTableData(type, btnElement) {
+            const isDM = type === 'dm';
+            const data = isDM ? globalProcessedData.DM : globalProcessedData.HT;
+            
+            if (data.rows.length === 0) return;
+
+            let textToCopy = '';
+
+            data.rows.forEach(row => {
+                let rowData = [];
+                data.columns.forEach(col => {
+                    let val = row[col.index];
+                    val = (val !== null && val !== undefined && val !== '') ? val : '-';
+
+                    if (isDM && typeof val === 'string') {
+                        val = val.replace(/mg\/dl/gi, '').trim();
+                    }
+                    rowData.push(val);
+                });
+
+                const insertIndex = isDM ? 2 : 3;
+                if(rowData.length >= insertIndex) {
+                   rowData.splice(insertIndex, 0, "", ""); // Sisipkan 2 string kosong
+                }
+
+                textToCopy += rowData.join('\t') + '\n';
+            });
+
+            if(!textToCopy) return;
+
+            // Membuat elemen textarea tersembunyi
+            const textarea = document.createElement('textarea');
+            textarea.value = textToCopy;
+            
+            // Posisikan di luar viewport untuk menghindari scroll melompat
+            textarea.style.position = 'fixed';
+            textarea.style.left = '-9999px';
+            textarea.style.top = '0';
+            document.body.appendChild(textarea);
+            
+            // Pilih dan salin teks
+            textarea.select();
+            textarea.setSelectionRange(0, 99999); // Untuk dukungan mobile
+
+            try {
+                // Eksekusi perintah copy klasik yang didukung iframe
+                document.execCommand('copy');
+                
+                // Animasi Berhasil
+                const originalHtml = btnElement.innerHTML;
+                btnElement.classList.replace('neu-btn', 'neu-pressed');
+                btnElement.innerHTML = `<i class="ph ph-check text-emerald-600"></i> <span class="text-emerald-600">Tersalin!</span>`;
+                
+                setTimeout(() => {
+                    btnElement.classList.replace('neu-pressed', 'neu-btn');
+                    btnElement.innerHTML = originalHtml;
+                }, 2000);
+            } catch (err) {
+                console.error('Gagal menyalin teks: ', err);
+                showMessage('Browser tidak mengizinkan akses salin teks.', 'error');
+            } finally {
+                // Hapus elemen textarea setelah selesai
+                document.body.removeChild(textarea);
+            }
+        }
+
+        function showMessage(msg, type = 'error') {
+            const existingMsg = document.getElementById('app-message');
+            if (existingMsg) existingMsg.remove();
+
+            const msgDiv = document.createElement('div');
+            msgDiv.id = 'app-message';
+            msgDiv.className = `mt-4 p-4 rounded-xl text-center font-bold shadow-inner ${
+                type === 'error' ? 'bg-red-100 text-red-600' : 'bg-emerald-100 text-emerald-600'
+            }`;
+            msgDiv.innerText = msg;
+            
+            document.getElementById('drop-zone').parentElement.appendChild(msgDiv);
+        }
+
+        function hideMessage() {
+            const existingMsg = document.getElementById('app-message');
+            if (existingMsg) existingMsg.remove();
+        }
+    </script>
+</body>
+</html>
