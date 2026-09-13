@@ -200,15 +200,19 @@
                 <!-- Table 1: DM Terkendali -->
                 <div class="w-full flex flex-col gap-5">
                     <div class="flex flex-col md:flex-row items-start md:items-center justify-between w-full gap-4 mb-2 border-b-2 border-slate-300/50 pb-5">
-                        <div class="flex items-center gap-4">
+                        <a href="#" id="link-title-dm" onclick="navigateToReport(event, 'DM')" title="Buka Spreadsheet DM (Kolom C)" class="flex items-center gap-4 neu-btn px-6 py-3 rounded-2xl cursor-pointer hover:-translate-y-1 transition-all duration-300 group">
                             <span class="w-4 h-10 bg-gradient-to-b from-blue-400 to-blue-600 rounded-full shadow-[0_0_12px_rgba(59,130,246,0.4)]"></span>
-                            <h4 class="text-2xl font-black text-slate-700 tracking-tight text-gradient-blue">DM Terkendali</h4>
-                        </div>
+                            <div class="flex items-center gap-3">
+                                <h4 class="text-2xl font-black text-slate-700 tracking-tight text-gradient-blue">DM Terkendali</h4>
+                                <i class="ph-bold ph-arrow-square-out text-blue-500 text-xl bg-blue-50/50 p-1.5 rounded-lg group-hover:bg-blue-100 transition-colors"></i>
+                            </div>
+                        </a>
+
                         <div class="flex flex-wrap items-center gap-3 self-end md:self-auto">
-                            <button onclick="copyTableData('dm', this)" class="px-6 py-2.5 neu-btn blue-hover rounded-xl text-slate-600 font-bold text-sm flex items-center gap-2">
+                            <button onclick="copyTableData('dm', this)" class="px-6 py-2.5 neu-btn rounded-xl text-orange-500 font-bold text-sm flex items-center gap-2 hover:text-orange-600 transition-colors">
                                 <i class="ph-bold ph-copy text-lg"></i> <span>Salin Laporan</span>
                             </button>
-                            <a href="https://docs.google.com/spreadsheets/d/1Iz7AeBYLCADXnXtxayB2rOQKsZutc71jqEE4xL0sCxc/edit?gid=447272003#gid=447272003" target="_blank" class="px-6 py-2.5 neu-btn blue-hover rounded-xl text-slate-600 font-bold text-sm flex items-center gap-2">
+                            <a href="https://docs.google.com/spreadsheets/d/1Iz7AeBYLCADXnXtxayB2rOQKsZutc71jqEE4xL0sCxc/edit?gid=447272003#gid=447272003" target="_blank" class="px-6 py-2.5 neu-btn rounded-xl text-blue-500 font-bold text-sm flex items-center gap-2 hover:text-blue-600 transition-colors">
                                 <i class="ph-bold ph-arrow-square-out text-lg"></i> <span>Link Laporan</span>
                             </a>
                         </div>
@@ -243,15 +247,19 @@
                 <!-- Table 2: HT Terkendali -->
                 <div class="w-full flex flex-col gap-5">
                     <div class="flex flex-col md:flex-row items-start md:items-center justify-between w-full gap-4 mb-2 border-b-2 border-slate-300/50 pb-5">
-                        <div class="flex items-center gap-4">
+                        <a href="#" id="link-title-ht" onclick="navigateToReport(event, 'HT')" title="Buka Spreadsheet HT (Kolom B)" class="flex items-center gap-4 neu-btn px-6 py-3 rounded-2xl cursor-pointer hover:-translate-y-1 transition-all duration-300 group">
                             <span class="w-4 h-10 bg-gradient-to-b from-emerald-400 to-emerald-600 rounded-full shadow-[0_0_12px_rgba(16,185,129,0.4)]"></span>
-                            <h4 class="text-2xl font-black text-slate-700 tracking-tight text-gradient">HT Terkendali</h4>
-                        </div>
+                            <div class="flex items-center gap-3">
+                                <h4 class="text-2xl font-black text-slate-700 tracking-tight text-gradient">HT Terkendali</h4>
+                                <i class="ph-bold ph-arrow-square-out text-emerald-500 text-xl bg-emerald-50/50 p-1.5 rounded-lg group-hover:bg-emerald-100 transition-colors"></i>
+                            </div>
+                        </a>
+
                         <div class="flex flex-wrap items-center gap-3 self-end md:self-auto">
-                            <button onclick="copyTableData('ht', this)" class="px-6 py-2.5 neu-btn rounded-xl text-slate-600 font-bold text-sm flex items-center gap-2">
+                            <button onclick="copyTableData('ht', this)" class="px-6 py-2.5 neu-btn rounded-xl text-orange-500 font-bold text-sm flex items-center gap-2 hover:text-orange-600 transition-colors">
                                 <i class="ph-bold ph-copy text-lg"></i> <span>Salin Laporan</span>
                             </button>
-                            <a href="https://docs.google.com/spreadsheets/d/1XrKHboyMs4rAsqXskIi7aw7InaYqiIYOdCUNdk0H6ew/edit?gid=447272003#gid=447272003" target="_blank" class="px-6 py-2.5 neu-btn rounded-xl text-slate-600 font-bold text-sm flex items-center gap-2">
+                            <a href="https://docs.google.com/spreadsheets/d/1XrKHboyMs4rAsqXskIi7aw7InaYqiIYOdCUNdk0H6ew/edit?gid=447272003#gid=447272003" target="_blank" class="px-6 py-2.5 neu-btn rounded-xl text-blue-500 font-bold text-sm flex items-center gap-2 hover:text-blue-600 transition-colors">
                                 <i class="ph-bold ph-arrow-square-out text-lg"></i> <span>Link Laporan</span>
                             </a>
                         </div>
@@ -294,18 +302,12 @@
         const dmColumns = [
             { header: "NIK", index: 2 },
             { header: "Pasien Terdiagnosa", index: 4 },
-            { header: "Januari", index: 8 },
-            { header: "Februari", index: 15 },
-            { header: "Maret", index: 22 },
-            { header: "April", index: 29 },
-            { header: "Mei", index: 36 },
-            { header: "Juni", index: 43 },
-            { header: "Juli", index: 50 },
-            { header: "Agustus", index: 57 },
-            { header: "September", index: 64 },
-            { header: "Oktober", index: 71 },
-            { header: "November", index: 78 },
-            { header: "Desember", index: 85 }
+            { header: "Januari", index: 8 }, { header: "Februari", index: 15 },
+            { header: "Maret", index: 22 }, { header: "April", index: 29 },
+            { header: "Mei", index: 36 }, { header: "Juni", index: 43 },
+            { header: "Juli", index: 50 }, { header: "Agustus", index: 57 },
+            { header: "September", index: 64 }, { header: "Oktober", index: 71 },
+            { header: "November", index: 78 }, { header: "Desember", index: 85 }
         ];
 
         const htColumns = [
@@ -329,10 +331,15 @@
         // ----------------------------------------------------
         // LOGIKA LOGIN & LOGOUT
         // ----------------------------------------------------
+        // CATATAN: Pastikan GAS Anda mengembalikan nilai result.linkHT dan result.linkDM
         const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxYBzzCKleeNvO8gCAcSMi37sQ4n4oe8Lg3e6E45NZdqkXWHlaItx8bjaKYs0pUoPLr/exec'; 
         const loginSection = document.getElementById('login-section');
         const appSection = document.getElementById('app-section');
         const usernameInput = document.getElementById('username-input');
+        
+        // Link Default (Fallback)
+        const defaultDMLink = "https://docs.google.com/spreadsheets/d/1Iz7AeBYLCADXnXtxayB2rOQKsZutc71jqEE4xL0sCxc/edit?gid=447272003#gid=447272003";
+        const defaultHTLink = "https://docs.google.com/spreadsheets/d/1XrKHboyMs4rAsqXskIi7aw7InaYqiIYOdCUNdk0H6ew/edit?gid=447272003#gid=447272003";
 
         window.onload = function() {
             const savedUser = sessionStorage.getItem('username');
@@ -340,6 +347,19 @@
                 showAppScreen(savedUser);
             }
         };
+
+        // Fungsi baru untuk menangani klik tombol judul laporan
+        function navigateToReport(event, type) {
+            event.preventDefault(); // Mencegah aksi default tag <a> pindah ke halaman lain
+            const link = sessionStorage.getItem(`link${type}`);
+            
+            // Validasi jika link kosong atau tidak ada
+            if (!link || link.trim() === '') {
+                showNotification(`Gagal akses laporan! Link untuk ${type} Terkendali tidak ditemukan di database.`, 'error');
+            } else {
+                window.open(link, '_blank'); // Buka di tab baru jika ada
+            }
+        }
 
         usernameInput.addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
@@ -384,6 +404,8 @@
             if (username.toLowerCase() === 'admin') {
                 setTimeout(() => {
                     sessionStorage.setItem('username', 'admin');
+                    sessionStorage.setItem('linkDM', defaultDMLink);
+                    sessionStorage.setItem('linkHT', defaultHTLink);
                     showAppScreen('admin');
                     resetLoginBtn();
                 }, 800);
@@ -396,6 +418,9 @@
 
                 if (result.status === 'success') {
                     sessionStorage.setItem('username', username);
+                    // Simpan link spesifik user. Jika dari database kosong, set jadi string kosong '' 
+                    sessionStorage.setItem('linkDM', result.linkDM || '');
+                    sessionStorage.setItem('linkHT', result.linkHT || '');
                     showAppScreen(username);
                 } else {
                     errorText.innerText = result.message;
@@ -421,7 +446,7 @@
         }
 
         function handleLogout() {
-            sessionStorage.removeItem('username');
+            sessionStorage.clear();
             
             appSection.classList.add('opacity-0', 'translate-y-20', 'pointer-events-none');
             
