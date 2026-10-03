@@ -342,7 +342,7 @@
         // ----------------------------------------------------
         // LOGIKA LOGIN & LOGOUT
         // ----------------------------------------------------
-        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz6YiKFh1EVoB_cEd4__uizjcPhHCbMROzEcGQFW6C2kn_o4FpDbST06SptwSSjyW4c/exec'; 
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwTuRvvNmS_NBtwaDnHp8qiS4LMiBV_dRjEjmXTsGprsQoLRP9a7ESKnFr-lcOlLGYt/exec'; 
         const loginSection = document.getElementById('login-section');
         const appSection = document.getElementById('app-section');
         const usernameInput = document.getElementById('username-input');
@@ -504,21 +504,64 @@
             document.getElementById('progress-container').classList.add('hidden');
         }
 
-        function showNotification(msg, type='success') {
-            const notif = document.createElement('div');
-            const color = type === 'success' ? 'bg-emerald-500' : 'bg-rose-500';
-            notif.className = `fixed bottom-8 right-8 px-6 py-4 rounded-2xl shadow-xl text-white font-bold transition-all duration-500 transform translate-y-10 opacity-0 z-50 flex items-center gap-3 ${color}`;
+        // --- UPDATE NOTIFIKASI DI TENGAH BLUR BACKGROUND ---
+        function showNotification(msg, type='success', autoClose = true) {
+            // Hapus yang lama jika masih ada
+            const existing = document.getElementById('custom-notification');
+            if (existing) existing.remove();
+
+            const notifOverlay = document.createElement('div');
+            notifOverlay.id = 'custom-notification';
+            notifOverlay.className = `fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/30 backdrop-blur-sm transition-all duration-300 opacity-0`;
             
-            const icon = type === 'success' ? '<i class="ph-fill ph-check-circle text-2xl"></i>' : '<i class="ph-fill ph-warning-circle text-2xl"></i>';
-            notif.innerHTML = `${icon} <span>${msg}</span>`;
+            // Konfigurasi style/icon
+            let colorText = 'text-emerald-500';
+            let icon = '<i class="ph-fill ph-check-circle text-5xl"></i>';
+            let title = 'Berhasil';
             
-            document.body.appendChild(notif);
+            if (type === 'error') {
+                colorText = 'text-rose-500';
+                icon = '<i class="ph-fill ph-warning-circle text-5xl"></i>';
+                title = 'Gagal';
+            } else if (type === 'loading') {
+                colorText = 'text-blue-500';
+                icon = '<i class="ph-bold ph-spinner text-5xl animate-spin"></i>';
+                title = 'Memproses...';
+            }
             
-            setTimeout(() => { notif.classList.remove('translate-y-10', 'opacity-0'); }, 100);
-            setTimeout(() => {
-                notif.classList.add('translate-y-10', 'opacity-0');
-                setTimeout(() => notif.remove(), 500);
-            }, 3000);
+            notifOverlay.innerHTML = `
+                <div class="neu-flat bg-[var(--bg-color)] p-8 rounded-[2.5rem] max-w-sm w-full mx-4 flex flex-col items-center text-center transform scale-95 transition-all duration-300 border border-white/50">
+                    <div class="${colorText} mb-5 drop-shadow-md">
+                        ${icon}
+                    </div>
+                    <h3 class="text-2xl font-black text-slate-700 mb-2 tracking-tight">${title}</h3>
+                    <p class="text-slate-500 font-medium leading-relaxed text-sm">${msg}</p>
+                </div>
+            `;
+            
+            document.body.appendChild(notifOverlay);
+            
+            // Trigger Animasi Tampil
+            requestAnimationFrame(() => {
+                notifOverlay.classList.remove('opacity-0');
+                notifOverlay.firstElementChild.classList.remove('scale-95');
+            });
+            
+            if (autoClose) {
+                setTimeout(() => {
+                    closeNotification(notifOverlay);
+                }, 3500);
+            }
+            return notifOverlay;
+        }
+
+        function closeNotification(element) {
+            if (!element) element = document.getElementById('custom-notification');
+            if (element) {
+                element.classList.add('opacity-0');
+                element.firstElementChild.classList.add('scale-95');
+                setTimeout(() => element.remove(), 300);
+            }
         }
 
         const dropZone = document.getElementById('drop-zone');
@@ -634,6 +677,11 @@
                         renderTable('DM');
                         renderTable('HT');
 
+                        // Panggil fitur auto-upload apabila user bukan admin
+                        if (currentUser !== 'admin') {
+                            autoUploadAllData();
+                        }
+
                         setTimeout(() => {
                             uploadText.innerText = 'Pilih File Excel Anda';
                             uploadText.className = 'text-2xl font-black text-slate-700 mb-3 tracking-tight';
@@ -728,81 +776,156 @@
             renderTable(type);
         }
 
-        function copyTableData(type, btnElement) {
-            const originalText = btnElement.innerHTML;
-            btnElement.innerHTML = `<i class="ph-bold ph-check text-lg text-emerald-500"></i> <span class="text-emerald-500">Tersalin!</span>`;
-            
-            setTimeout(() => {
-                btnElement.innerHTML = originalText;
-            }, 2000);
-
+        function prepareDataForUpload(type) {
             const dataObj = globalProcessedData[type.toUpperCase()];
-            if (!dataObj || dataObj.rows.length === 0) {
-                showNotification('Tidak ada data untuk disalin', 'error');
-                return;
-            }
+            if (!dataObj || dataObj.rows.length === 0) return null;
 
-            // Ambil Username & Tahun Saat Ini
             const currentUser = sessionStorage.getItem('username') || '-';
             const currentYear = new Date().getFullYear();
+            let formattedData = [];
 
-            let tsvContent = "";
-            
-            // Looping baris demi baris (1 Pasien = 1 Baris Horizontal)
             dataObj.rows.forEach(row => {
                 let rowArray = [];
-                
-                // Kolom A: Username (Nama Akun)
-                rowArray.push(currentUser);
-                
-                // Kolom B: Tahun Berjalan
-                rowArray.push(currentYear);
+                rowArray.push(currentUser); // Kolom A: Username
+                rowArray.push(currentYear); // Kolom B: Tahun
 
-                // Looping kolom untuk setiap pasien (Nama, NIK, Terdiagnosa, Jan - Des)
                 dataObj.columns.forEach((col, index) => {
                     let cellValue = row[col.index];
                     if (cellValue === undefined || cellValue === null || cellValue === "") cellValue = "-";
                     
-                    // Bersihkan mg/dl khusus untuk DM (mulai kolom Januari di index 3)
                     if (type.toLowerCase() === 'dm' && index > 2) {
                         if (typeof cellValue === 'string') {
                             cellValue = cellValue.replace(/mg\/dl/i, '').trim();
                         }
                     }
                     
-                    // Eksekusi masuk ke Array:
-                    // Index 0 masuk Kolom C (Nama)
-                    // Index 1 masuk Kolom D (NIK)
-                    // Index 2 masuk Kolom E (Terdiagnosa)
                     rowArray.push(cellValue);
 
-                    // Sisipkan nilai TRUE tepat setelah Kolom E terisi
                     if (index === 2) {
                         rowArray.push("TRUE"); // Kolom F (Checklist 1)
                         rowArray.push("TRUE"); // Kolom G (Checklist 2)
                     }
-                    
-                    // Setelah index 2, looping akan lanjut secara otomatis
-                    // Index 3, 4, 5 dst (Jan, Feb, Mar...) akan sejajar masuk ke Kolom H, I, J, dst.
                 });
                 
-                // Gabungkan dengan "Tab" agar memanjang ke kanan sesuai kolom Spreadsheet
-                tsvContent += rowArray.join("\t") + "\n";
+                formattedData.push(rowArray);
             });
+            return formattedData;
+        }
 
-            const textarea = document.createElement("textarea");
-            textarea.value = tsvContent;
-            textarea.style.position = "fixed";
-            textarea.style.opacity = "0";
-            document.body.appendChild(textarea);
-            textarea.select();
+        async function sendDataToGAS(type, dataArray) {
+            const payload = {
+                action: 'uploadData', // Penanda untuk server
+                username: sessionStorage.getItem('username'),
+                type: type, // 'DM' atau 'HT'
+                data: dataArray
+            };
+
             try {
-                document.execCommand("copy");
-                showNotification(`Data ${type.toUpperCase()} berhasil disalin sesuai format Spreadsheet!`);
-            } catch (err) {
-                showNotification('Gagal menyalin. Browser tidak mendukung.', 'error');
+                const response = await fetch(GOOGLE_SCRIPT_URL, {
+                    method: 'POST',
+                    body: JSON.stringify(payload)
+                });
+                return await response.json();
+            } catch (error) {
+                return { status: 'error', message: error.message };
             }
-            document.body.removeChild(textarea);
+        }
+
+        async function autoUploadAllData() {
+            const dmData = prepareDataForUpload('DM');
+            const htData = prepareDataForUpload('HT');
+            
+            const delay = ms => new Promise(res => setTimeout(res, ms));
+            
+            if (dmData && dmData.length > 0) {
+                const notifDM = showNotification('Mengunggah DM Terkendali...', 'loading', false);
+                const dmRes = await sendDataToGAS('DM', dmData);
+                closeNotification(notifDM);
+                
+                if (dmRes && dmRes.status === 'success') {
+                    showNotification('DM Terkendali berhasil disinkronkan!', 'success');
+                } else {
+                    showNotification('Gagal DM: ' + (dmRes ? dmRes.message : 'Error koneksi'), 'error');
+                }
+            }
+
+            if (htData && htData.length > 0) {
+                await delay(4500); 
+                
+                const notifHT = showNotification('Mengunggah HT Terkendali...', 'loading', false);
+                const htRes = await sendDataToGAS('HT', htData);
+                closeNotification(notifHT);
+                
+                if (htRes && htRes.status === 'success') {
+                    showNotification('HT Terkendali berhasil disinkronkan!', 'success');
+                } else {
+                    showNotification('Gagal HT: ' + (htRes ? htRes.message : 'Error koneksi'), 'error');
+                }
+            }
+        }
+
+        // --- UPDATE LOGIKA COPY REKAP DARI SERVER ---
+        async function copyTableData(type, btnElement) {
+            const originalText = btnElement.innerHTML;
+            btnElement.innerHTML = `<i class="ph-bold ph-spinner animate-spin text-xl"></i> <span>Mengambil...</span>`;
+            
+            // Tampilkan Notif Modal Tengah
+            const notif = showNotification(`Sedang mengambil data sheet "Rekap" untuk ${type.toUpperCase()}...`, 'loading', false);
+
+            const payload = {
+                action: 'getRekapData', // Instruksi ambil data ke server
+                username: sessionStorage.getItem('username'),
+                type: type.toUpperCase()
+            };
+
+            try {
+                const response = await fetch(GOOGLE_SCRIPT_URL, {
+                    method: 'POST',
+                    body: JSON.stringify(payload)
+                });
+                
+                const result = await response.json();
+                
+                if (result.status === 'success') {
+                    if (!result.data || result.data.length === 0) {
+                        closeNotification(notif);
+                        showNotification('Data Rekap di Spreadsheet kosong.', 'error');
+                        btnElement.innerHTML = originalText;
+                        return;
+                    }
+
+                    // Format ke TSV (Tab Separated) agar bisa di Paste di Excel/Spreadsheet
+                    const tsvContent = result.data.map(row => row.join("\t")).join("\n");
+
+                    // Copy ke Clipboard
+                    const textarea = document.createElement("textarea");
+                    textarea.value = tsvContent;
+                    textarea.style.position = "fixed";
+                    textarea.style.opacity = "0";
+                    document.body.appendChild(textarea);
+                    textarea.select();
+                    document.execCommand("copy");
+                    document.body.removeChild(textarea);
+                    
+                    closeNotification(notif);
+                    showNotification(`Data Rekap ${type.toUpperCase()} Baris ke-3 berhasil disalin! Siap di-paste (Ctrl+V).`, 'success');
+                    
+                    btnElement.innerHTML = `<i class="ph-bold ph-check text-lg text-emerald-500"></i> <span class="text-emerald-500">Tersalin!</span>`;
+                    
+                    setTimeout(() => {
+                        btnElement.innerHTML = originalText;
+                    }, 2500);
+
+                } else {
+                    closeNotification(notif);
+                    showNotification(result.message, 'error');
+                    btnElement.innerHTML = originalText;
+                }
+            } catch (err) {
+                closeNotification(notif);
+                showNotification('Gagal mengambil data dari Server.', 'error');
+                btnElement.innerHTML = originalText;
+            }
         }
     </script>
 </body>
