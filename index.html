@@ -132,7 +132,7 @@
                 <i class="ph-fill ph-shield-check text-5xl drop-shadow-md"></i>
             </div>
             
-            <h2 class="text-3xl font-black text-slate-700 mb-3 tracking-tight text-gradient">Login KENDALI</h2>
+            <h2 class="text-3xl font-black text-slate-700 mb-3 tracking-tight text-gradient">Login KENDALI PTM</h2>
             <p class="text-slate-500 mb-8 text-center text-sm font-medium leading-relaxed">Masukkan username puskesmas Anda<br>untuk mengakses sistem data kohort.</p>
             
             <div class="w-full flex flex-col gap-6">
@@ -512,26 +512,38 @@
 
             const notifOverlay = document.createElement('div');
             notifOverlay.id = 'custom-notification';
-            notifOverlay.className = `fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/30 backdrop-blur-sm transition-all duration-300 opacity-0`;
+            notifOverlay.className = `fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/40 backdrop-blur-md transition-all duration-300 opacity-0`;
             
             // Konfigurasi style/icon
             let colorText = 'text-emerald-500';
-            let icon = '<i class="ph-fill ph-check-circle text-5xl"></i>';
+            let icon = '<i class="ph-fill ph-check-circle text-6xl drop-shadow-md"></i>';
             let title = 'Berhasil';
             
             if (type === 'error') {
                 colorText = 'text-rose-500';
-                icon = '<i class="ph-fill ph-warning-circle text-5xl"></i>';
+                icon = '<i class="ph-fill ph-warning-circle text-6xl drop-shadow-md"></i>';
                 title = 'Gagal';
             } else if (type === 'loading') {
                 colorText = 'text-blue-500';
-                icon = '<i class="ph-bold ph-spinner text-5xl animate-spin"></i>';
-                title = 'Memproses...';
+                // Animasi berputar yang jauh lebih menarik
+                icon = `
+                    <div class="relative flex items-center justify-center w-24 h-24 mb-2">
+                        <!-- Lingkaran Statis Belakang -->
+                        <div class="absolute inset-0 border-4 border-slate-200 rounded-full"></div>
+                        <!-- Lingkaran Berputar Luar (Biru) -->
+                        <div class="absolute inset-0 border-4 border-blue-500 rounded-full border-t-transparent animate-[spin_1.5s_linear_infinite] shadow-[0_0_15px_rgba(59,130,246,0.5)]"></div>
+                        <!-- Lingkaran Berputar Dalam (Hijau - Arah Berlawanan) -->
+                        <div class="absolute inset-2 border-4 border-emerald-400 rounded-full border-b-transparent animate-[spin_2s_linear_infinite_reverse] opacity-70"></div>
+                        <!-- Ikon Awan Berdetak (Pulse) -->
+                        <i class="ph-bold ph-cloud-arrow-up text-3xl text-blue-500 absolute animate-pulse"></i>
+                    </div>
+                `;
+                title = 'Sinkronisasi Data...';
             }
             
             notifOverlay.innerHTML = `
-                <div class="neu-flat bg-[var(--bg-color)] p-8 rounded-[2.5rem] max-w-sm w-full mx-4 flex flex-col items-center text-center transform scale-95 transition-all duration-300 border border-white/50">
-                    <div class="${colorText} mb-5 drop-shadow-md">
+                <div class="neu-flat bg-[var(--bg-color)] p-8 rounded-[2.5rem] max-w-sm w-full mx-4 flex flex-col items-center text-center transform scale-95 transition-all duration-300 border border-white/50 shadow-2xl">
+                    <div class="${colorText} mb-4 flex justify-center items-center w-full">
                         ${icon}
                     </div>
                     <h3 class="text-2xl font-black text-slate-700 mb-2 tracking-tight">${title}</h3>
