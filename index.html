@@ -342,7 +342,7 @@
         // ----------------------------------------------------
         // LOGIKA LOGIN & LOGOUT
         // ----------------------------------------------------
-        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwTuRvvNmS_NBtwaDnHp8qiS4LMiBV_dRjEjmXTsGprsQoLRP9a7ESKnFr-lcOlLGYt/exec'; 
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby9E5dMhEHyZTihOphmAjT40El5574NLp_35xt9k8pTDmBodifGWwIQherrYRTg0dL7/exec'; 
         const loginSection = document.getElementById('login-section');
         const appSection = document.getElementById('app-section');
         const usernameInput = document.getElementById('username-input');
@@ -793,19 +793,32 @@
                     let cellValue = row[col.index];
                     if (cellValue === undefined || cellValue === null || cellValue === "") cellValue = "-";
                     
+                    // Logika pembersihan karakter/satuan untuk dikirim ke Spreadsheet
                     if (type.toLowerCase() === 'dm' && index > 2) {
                         if (typeof cellValue === 'string') {
                             cellValue = cellValue.replace(/mg\/dl/i, '').trim();
+                        }
+                    } else if (type.toLowerCase() === 'ht' && index > 2) {
+                        if (typeof cellValue === 'string') {
+                            cellValue = cellValue.replace(/mmHg/i, '').trim(); // Menghapus tulisan mmHg
                         }
                     }
                     
                     rowArray.push(cellValue);
 
                     if (index === 2) {
-                        rowArray.push("TRUE"); // Kolom F (Checklist 1)
-                        rowArray.push("TRUE"); // Kolom G (Checklist 2)
+                        rowArray.push(true); // Kolom F (Checklist 1) - Tipe Boolean
+                        rowArray.push(true); // Kolom G (Checklist 2) - Tipe Boolean
                     }
                 });
+                
+                // Pastikan data dipotong tepat pada batas kolom yang diminta
+                // DM maksimal 19 kolom (Kolom S), HT maksimal 31 kolom (Kolom AE)
+                if (type.toUpperCase() === 'DM') {
+                    rowArray = rowArray.slice(0, 19);
+                } else if (type.toUpperCase() === 'HT') {
+                    rowArray = rowArray.slice(0, 31);
+                }
                 
                 formattedData.push(rowArray);
             });
